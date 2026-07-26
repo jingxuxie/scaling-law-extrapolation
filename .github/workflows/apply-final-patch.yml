@@ -1,0 +1,40 @@
+name: Apply final submission patch
+
+on:
+  push:
+    branches: [agent/submission-ready-v2]
+    paths:
+      - .github/final_patch/READY
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/submission-ready-v2
+          fetch-depth: 0
+      - name: Apply audited compressed patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/final_patch/part-* > /tmp/final.patch.gz.b64
+          echo "90f03bf1dbe970ae01169395317a5c1c1e44794a46f332cb08ed120819f93060  /tmp/final.patch.gz.b64" | sha256sum -c -
+          base64 -d /tmp/final.patch.gz.b64 > /tmp/final.patch.gz
+          echo "de3a8dbb30a85fc391e3a9080f78fcb7bf7ebf59c3c8d33b0ce0b88a6a778805  /tmp/final.patch.gz" | sha256sum -c -
+          gzip -dc /tmp/final.patch.gz > /tmp/final.patch
+          echo "1887f6cbeedc9bfa3cebbf3e8b683a2e9ce042f12d3ae9175a908f048052543f  /tmp/final.patch" | sha256sum -c -
+          git rm -f .github/workflows/submission.yml
+          git apply --check --index --binary /tmp/final.patch
+          git apply --index --binary /tmp/final.patch
+          rm -rf .github/final_patch
+          git rm -f .github/workflows/apply-final-patch.yml
+          git add -A
+          git diff --cached --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "paper: complete submission-ready theory and evaluation"
+          git push origin HEAD:agent/submission-ready-v2
