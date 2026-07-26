@@ -1,39 +1,101 @@
-\section{Set-Valued Extrapolation with \ScaleCert}
+\section{Continuous-Exponent \ScaleCert}
 
-The lower bounds suggest changing the output: instead of forcing a point estimate, compute all target values compatible with the data and a declared spectral class. Choose a dictionary $\mathcal{A}=\{\alpha_1,\ldots,\alpha_L\}$ and define
-\begin{equation}
- \Risk_\theta(M)=\theta_0+\sum_{\ell=1}^L\theta_\ell
- \phi_{\alpha_\ell}(M),
- \qquad \theta\ge0.
- \label{eq:dictionary}
-\end{equation}
-Let
-$z_\delta=\Phi^{-1}(1-\delta/(2m))$ and
-\begin{equation}
- \Cset_\delta=\left\{\theta\ge0:
- |Y_i-\Risk_\theta(M_i)|\le z_\delta s_i,\; i\le m\right\}.
- \label{eq:confidence-set}
-\end{equation}
-For a target $M_\star$, \ScaleCert\ solves
-\begin{equation}
- L_\delta(M_\star)=\min_{\theta\in\Cset_\delta}\Risk_\theta(M_\star),
- \quad
- U_\delta(M_\star)=\max_{\theta\in\Cset_\delta}\Risk_\theta(M_\star).
- \label{eq:lp}
-\end{equation}
-Both are linear programs. If $\Cset_\delta$ is empty, the dictionary is rejected at the chosen tolerance rather than silently extrapolated.
+The lower bounds motivate a set-valued output. First consider a finite dictionary $\mathcal A=\{\alpha_1,\ldots,\alpha_L\}$ and
+$\Risk_\theta(M)=\theta_0+\sum_{\ell}\theta_\ell\phi_{\alpha_\ell}(M)$ with $\theta\ge0$. Let
+$z_\delta=\Phi^{-1}(1-\delta/(2m))$ and pilot bands
+$[\ell_i,u_i]=[Y_i-z_\delta s_i,Y_i+z_\delta s_i]$.
+Minimizing and maximizing $\Risk_\theta(M_\star)$ subject to
+$\ell_i\le\Risk_\theta(M_i)\le u_i$ gives the sharp finite-dictionary interval by two linear programs.
 
-\begin{theorem}[Finite-sample simultaneous coverage]
+\begin{theorem}[Finite-dictionary simultaneous coverage]
 \label{thm:certificate}
-Suppose the true risk has the form in Eq.~\eqref{eq:dictionary} and the noises in Eq.~\eqref{eq:observations} are independent Gaussian variables with known standard errors. Then, with probability at least $1-\delta$, for every target size $M$ simultaneously,
-\begin{equation}
- \Risk(M)\in[L_\delta(M),U_\delta(M)].
- \label{eq:coverage}
-\end{equation}
-The interval is sharp relative to $\Cset_\delta$: every value inside the optimization range is achieved by a coefficient vector not rejected by the simultaneous bands.
+If the true risk belongs to the finite dictionary and Eq.~\eqref{eq:observations} holds, then with probability at least $1-\delta$ the resulting LP interval contains $\Risk(M)$ for every target $M$ simultaneously. The interval is sharp relative to the coefficient vectors not rejected by the pilot bands.
 \end{theorem}
 
-The proof is a union bound: the true coefficient vector lies in $\Cset_\delta$ with probability at least $1-\delta$, after which every target statement holds deterministically. Bounded model misspecification can be incorporated by replacing $z_\delta s_i$ with $z_\delta s_i+\rho_i$.
+A grid plug-in, however, does not cover off-grid exponents. We now certify the continuous class in Eq.~\eqref{eq:continuous-mixture}. Choose
+$\gamma_0<\cdots<\gamma_L$ spanning $[\alpha_{\min},\alpha_{\max}]$ and let $\Delta_\ell=\gamma_{\ell+1}-\gamma_\ell$. Since
+\begin{equation}
+ \partial_\alpha^2\phi_\alpha(M)
+ =\sum_{j>M}(\log j)^2j^{-1-\alpha}>0,
+ \label{eq:basis-curvature}
+\end{equation}
+$\phi_\alpha(M)$ is convex in its exponent. Let $S_{\ell,\alpha}(M)$ be the secant interpolation between the two cell endpoints.
 
-For a loss target $\tau$, the method certifies success if $U_\delta(M_\star)\le\tau$, certifies failure if $L_\delta(M_\star)>\tau$, and otherwise abstains. The width $U_\delta-L_\delta$ defines a data-dependent safe extrapolation horizon.
+\begin{lemma}[Quadratic cell correction]
+\label{lem:secant}
+For $\alpha\in[\gamma_\ell,\gamma_{\ell+1}]$,
+\begin{equation}
+ 0\le S_{\ell,\alpha}(M)-\phi_\alpha(M)
+ \le \varepsilon_\ell(M):=
+ \frac{\Delta_\ell^2}{8}\kappa_\ell(M),
+ \label{eq:secant-bound}
+\end{equation}
+where $\kappa_\ell(M)$ is any upper bound on
+$\sup_{\alpha\in[\gamma_\ell,\gamma_{\ell+1}]}
+\partial_\alpha^2\phi_\alpha(M)$. For zeta tails we use an explicit finite-sum-plus-integral bound given in the supplement.
+\end{lemma}
 
+For the mass of $\mu$ inside cell $\ell$, define its barycentric endpoint masses $p_\ell,q_\ell\ge0$. Collect
+$\vartheta=(E,p_0,q_0,\ldots,p_{L-1},q_{L-1})\ge0$. Let
+\begin{align}
+ D_M\vartheta&:=E+\sum_\ell\{p_\ell\phi_{\gamma_\ell}(M)
+ +q_\ell\phi_{\gamma_{\ell+1}}(M)\},\\
+ G_M\vartheta&:=\sum_\ell\varepsilon_\ell(M)(p_\ell+q_\ell).
+ \label{eq:DG}
+\end{align}
+Every continuous mixture maps to such a vector and obeys
+$D_M\vartheta-G_M\vartheta\le\Risk_{E,\mu}(M)\le D_M\vartheta$.
+Define the outer confidence set
+\begin{equation}
+ \widetilde\Cset_\delta=
+ \{\vartheta\ge0:D_{M_i}\vartheta\ge\ell_i,
+ (D_{M_i}-G_{M_i})\vartheta\le u_i,\ i\le m\}.
+ \label{eq:continuous-set}
+\end{equation}
+The continuous certificate is
+\begin{equation}
+ \widetilde L_\delta(M)=\min_{\vartheta\in\widetilde\Cset_\delta}
+ (D_M-G_M)\vartheta,
+ \quad
+ \widetilde U_\delta(M)=\max_{\vartheta\in\widetilde\Cset_\delta}D_M\vartheta.
+ \label{eq:continuous-lp}
+\end{equation}
+These remain linear programs.
+
+\begin{theorem}[Off-grid simultaneous coverage]
+\label{thm:continuous-certificate}
+Suppose the true risk is Eq.~\eqref{eq:continuous-mixture} with a finite positive measure supported on
+$[\gamma_0,\gamma_L]$, and Eq.~\eqref{eq:observations} holds. Then, with probability at least $1-\delta$, for every target $M$ simultaneously,
+\begin{equation}
+ \Risk_{E,\mu}(M)\in
+ [\widetilde L_\delta(M),\widetilde U_\delta(M)].
+ \label{eq:continuous-coverage}
+\end{equation}
+The conclusion holds for arbitrary off-grid exponents. If the true measure has total mass at most $W$, its secant representation differs from the true target by at most
+$W\max_\ell\varepsilon_\ell(M)=O(W\Delta_{\max}^2)$.
+\end{theorem}
+
+An empty set rejects the declared class at the chosen tolerance. An unbounded upper LP is an honest abstention. For a loss target $\tau$, success is certified when $\widetilde U_\delta(M_\star)\le\tau$, failure when $\widetilde L_\delta(M_\star)>\tau$, and otherwise remains unidentified. Bounded structural mismatch is included by expanding each pilot band by a declared radius $\rho_i$.
+
+\section{Bridge to Trained Finite-Sample Regression}
+
+The spectral curve in Eq.~\eqref{eq:spectral-tail} is a population truncation risk. It also determines the risk of a trained estimator exactly.
+
+\begin{proposition}[Exact Gaussian OLS inflation]
+\label{prop:ols}
+Assume the first $M$ covariates are Gaussian and whitened, while the omitted-coordinate residual is independent and has variance $\Risk(M)$. Train ordinary least squares on $n>M+1$ independent samples, and let $\widehat\Risk_{\mathrm{OLS}}(M)$ denote the population test risk of the fitted predictor. Then
+\begin{equation}
+ \E\widehat\Risk_{\mathrm{OLS}}(M)
+ =\Risk(M)\frac{n-1}{n-M-1}.
+ \label{eq:ols-mean}
+\end{equation}
+Consequently,
+$\frac{n-M-1}{n-1}\widehat\Risk_{\mathrm{OLS}}(M)$ is unbiased for the spectral risk at the mean level. If the omitted-coordinate residual is also Gaussian, then moreover
+\begin{equation}
+ \frac{\widehat\Risk_{\mathrm{OLS}}(M)}{\Risk(M)}
+ \overset d=1+\frac{M}{n-M+1}F_{M,n-M+1}.
+ \label{eq:ols-distribution}
+\end{equation}
+\end{proposition}
+
+The omitted coordinates plus label noise form an independent residual with variance $\Risk(M)$. Equation~\eqref{eq:ols-mean} then follows from the inverse-Wishart identity. This gives an exact, inexpensive way to validate certificates on trained finite-sample learning curves rather than only on population formulas.

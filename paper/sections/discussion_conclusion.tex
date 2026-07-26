@@ -1,14 +1,14 @@
 \section{Implications and Limitations}
 
 \paragraph{Scale diversity versus replication.}
-Theorem~\ref{thm:matched} applies to any arrangement of $m$ design points inside $[-T,T]$. Repeating runs shrinks noise as $m^{-1/2}$ but does not reveal the curvature outside the available span. When possible, pilot budgets should include genuinely separated log-scales rather than only dense replication near one scale.
+Theorem~\ref{thm:matched} applies to arbitrary placement of $m$ points inside $[-T,T]$. Replication shrinks noise as $m^{-1/2}$ but cannot reveal curvature beyond the observed span. Pilot budgets should therefore include genuinely separated log-scales when feasible.
 
-\paragraph{Assumptions must be visible.}
-No finite interval can exclude every slower hidden component. \ScaleCert\ is informative only after declaring an exponent dictionary, nonnegativity, and an error model. This is a feature rather than a defect: sensitivity to the exponent range can be reported directly. A narrow interval from a single-power family and a wide interval from a broad mixture family answer different conditional questions.
+\paragraph{Coverage is conditional on visible assumptions.}
+No bounded pilot interval can exclude every slower component. \ScaleCert\ requires an exponent range, positivity, observation bands, and any structural-mismatch radius to be declared. A broad class may yield a wide or unbounded interval; this is an abstention, not an implementation failure. The public experiment demonstrates that in-range fit alone cannot calibrate mismatch beyond the range.
 
-\paragraph{Current scope.}
-Our exact model studies population truncation risk and Gaussian measurement noise. Optimization, finite-sample regression, correlated errors across scales, and adaptive selection of pilot scales require extensions. The positive certificate currently uses a finite exponent grid; continuous dictionaries lead naturally to semi-infinite or moment problems. Real learning curves may be nonmonotone, in which case a positive tail mixture is intentionally rejected rather than forced to fit.
+\paragraph{Scope.}
+The theory covers monotone positive spectral mixtures and independent Gaussian pilot errors. Nonmonotone phase transitions, adaptively selected pilot runs, correlated errors, and learned structural classes remain open. The OLS proposition exactly connects population and trained risks under Gaussian design, but analogous debiasing for ridge, early-stopped SGD, and neural networks requires additional analysis. Our public evaluation is deliberately descriptive because the released curves do not provide independent standard errors.
 
 \section{Conclusion}
 
-A high in-range $R^2$ does not certify a scaling-law extrapolation. In linear regression, a below-noise spectral component can change the asymptotic exponent, and floor--exponent confounding creates a quantitative barrier controlled by the observed log-span. These impossibility results motivate set-valued prediction. \ScaleCert\ converts explicit spectral assumptions and pilot uncertainty into a sharp, finite-sample target interval or an abstention. The broader message is methodological: extrapolation claims should report not only a fitted slope, but also which alternative regimes the pilot experiments were capable of ruling out.
+A high in-range $R^2$ does not certify a scaling-law extrapolation. Exact linear-regression constructions show that below-noise spectral mass can change the asymptotic exponent and compute-to-target requirement, while floor--exponent confounding creates a quantitative log-span barrier. \ScaleCert\ turns explicit assumptions into a target interval, with a rigorous continuous-exponent correction and an exact bridge to finite-sample OLS. The practical lesson is not that every extrapolation must be wide, but that confidence should contract only after pilot data have ruled out the alternatives that matter for the decision.
