@@ -28,31 +28,7 @@ jobs:
           git apply --index /tmp/final.patch
           git rm -r .final-patch
           git rm .github/workflows/apply-final-patch.yml
-          python - <<'PY'
-          from pathlib import Path
-          Path('.github/workflows/tests.yml').write_text('''name: tests
-
-on:
-  push:
-  pull_request:
-
-jobs:
-  python:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
-      - name: Install
-        run: python -m pip install -e ".[dev]"
-      - name: Unit tests
-        run: pytest -q
-      - name: Reproduce exact-risk experiments
-        run: python experiments/run_all.py
-''', encoding='utf-8')
-          PY
+          printf '%s' 'bmFtZTogdGVzdHMKCm9uOgogIHB1c2g6CiAgcHVsbF9yZXF1ZXN0OgoKam9iczoKICBweXRob246CiAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0CiAgICBzdGVwczoKICAgICAgLSB1c2VzOiBhY3Rpb25zL2NoZWNrb3V0QHY0CiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AdjUKICAgICAgICB3aXRoOgogICAgICAgICAgcHl0aG9uLXZlcnNpb246ICIzLjExIgogICAgICAgICAgY2FjaGU6IHBpcAogICAgICAtIG5hbWU6IEluc3RhbGwKICAgICAgICBydW46IHB5dGhvbiAtbSBwaXAgaW5zdGFsbCAtZSAiLltkZXZdIgogICAgICAtIG5hbWU6IFVuaXQgdGVzdHMKICAgICAgICBydW46IHB5dGVzdCAtcQogICAgICAtIG5hbWU6IFJlcHJvZHVjZSBleGFjdC1yaXNrIGV4cGVyaW1lbnRzCiAgICAgICAgcnVuOiBweXRob24gZXhwZXJpbWVudHMvcnVuX2FsbC5weQo=' | base64 --decode > .github/workflows/tests.yml
       - name: Publish clean assembled source tree
         run: |
           git config user.name "github-actions[bot]"
