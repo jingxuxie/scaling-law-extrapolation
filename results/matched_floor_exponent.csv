@@ -1,0 +1,2 @@
+alpha,beta,half_log_span,pilot_points,standard_error,max_pilot_gap,target_log_scale,target_gap,gaussian_kl
+0.35,0.55,0.5,9,0.005,0.0008145915733629994,6.5,0.02229339627368293,0.0282421534123734
