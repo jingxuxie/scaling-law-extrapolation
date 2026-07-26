@@ -1,0 +1,57 @@
+name: Apply final submission patch
+
+on:
+  push:
+    branches: [agent/final-submission-package]
+    paths:
+      - ".final-patch/READY"
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Assemble and apply verified patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .final-patch/part-* | base64 --decode | gzip -d > /tmp/final.patch
+          expected=$(tr -d '[:space:]' < .final-patch/READY)
+          actual=$(sha256sum /tmp/final.patch | awk '{print $1}')
+          test "$actual" = "$expected"
+          git apply --check /tmp/final.patch
+          git apply --index /tmp/final.patch
+          git rm -r .final-patch
+          git rm .github/workflows/apply-final-patch.yml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install and validate
+        env:
+          SYNTHETIC_REPETITIONS: "30"
+          BOOTSTRAP_REPETITIONS: "20"
+          OLS_REPETITIONS: "5000"
+          PYTHONHASHSEED: "0"
+          OMP_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          NUMEXPR_NUM_THREADS: "1"
+        run: |
+          python -m pip install -e ".[dev]"
+          pytest -q
+          python experiments/run_all.py
+          python experiments/run_submission.py --stage all
+      - name: Commit final package
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "paper: finalize submission package"
+          git push origin HEAD:${{ github.ref_name }}
