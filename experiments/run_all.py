@@ -3,13 +3,19 @@
 All experiments are laptop-scale.  The script writes figures to paper/figures
 and numerical summaries to results.  Run from the repository root with
 
-    PYTHONPATH=src python experiments/run_all.py
+    python experiments/run_all.py
 """
 
 from __future__ import annotations
 
 import csv
+import sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 import matplotlib
 
@@ -29,7 +35,6 @@ from scaling_extrapolation import (
 )
 
 
-ROOT = Path(__file__).resolve().parents[1]
 FIGURE_DIR = ROOT / "paper" / "figures"
 RESULT_DIR = ROOT / "results"
 FIGURE_DIR.mkdir(parents=True, exist_ok=True)
@@ -60,12 +65,14 @@ def compute_to_target(
     """Solve sum_l w_l phi_alpha_l(M) <= target by log-scale bisection."""
     if target_excess_risk <= 0:
         raise ValueError("target_excess_risk must be positive")
+    if len(exponents) != len(weights):
+        raise ValueError("exponents and weights must have equal length")
     lower, upper = 1.0, 1e100
     for _ in range(240):
         middle = np.sqrt(lower * upper)
         value = sum(
             weight * float(tail_basis([middle], exponent)[0])
-            for exponent, weight in zip(exponents, weights, strict=True)
+            for exponent, weight in zip(exponents, weights)
         )
         if value <= target_excess_risk:
             upper = middle

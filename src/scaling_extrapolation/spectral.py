@@ -94,7 +94,7 @@ def mixture_risk(
 
     m = _as_float_array(model_size)
     out = np.full_like(m, fill_value=float(floor), dtype=float)
-    for alpha, weight in zip(exponents_arr, weights_arr, strict=True):
+    for alpha, weight in zip(exponents_arr, weights_arr):
         out += weight * evaluate_basis(m, float(alpha), basis=basis)
     return out
 

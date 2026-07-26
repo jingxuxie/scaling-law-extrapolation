@@ -22,9 +22,8 @@ source .venv/bin/activate
 python -m pip install -e ".[dev]"
 
 pytest -q
-PYTHONPATH=src python experiments/run_all.py
-PYTHONPATH=src \
-  SYNTHETIC_REPETITIONS=30 \
+python experiments/run_all.py
+SYNTHETIC_REPETITIONS=30 \
   BOOTSTRAP_REPETITIONS=20 \
   OLS_REPETITIONS=5000 \
   python experiments/run_submission.py --stage all

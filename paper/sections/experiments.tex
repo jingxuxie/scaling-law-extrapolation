@@ -23,24 +23,29 @@ For the matched pair, nine pilot points in $t\in[-0.5,0.5]$ have Gaussian KL div
 
 \begin{figure*}[t]
 \centering
-\begin{minipage}[t]{0.49\textwidth}
+\begin{minipage}[t]{0.32\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/certificate_demo.pdf}
+\textbf{(a) Set-valued extrapolation}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.32\textwidth}
 \centering
 \includegraphics[width=\linewidth]{figures/continuous_refinement.pdf}
-\textbf{(a) Off-grid certificate refinement}
+\textbf{(b) Off-grid refinement}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.49\textwidth}
+\begin{minipage}[t]{0.32\textwidth}
 \centering
 \includegraphics[width=\linewidth]{figures/finite_sample_ols.pdf}
-\textbf{(b) Trained finite-sample regression}
+\textbf{(c) Trained finite-sample regression}
 \end{minipage}
-\caption{The positive theory is numerically checkable. Halving exponent-cell width divides the curvature correction by four. Exact OLS debiasing recovers the population spectral curve, allowing a certificate fit on dimensions $M\le96$ to cover the oracle risk at $M=256$.}
+\caption{The positive theory is numerically checkable. (a) \ScaleCert's compatible risk set widens beyond the pilots. (b) Halving exponent-cell width divides the curvature correction by four. (c) Exact OLS debiasing recovers the population spectral curve, allowing a certificate fit on dimensions $M\le96$ to cover the oracle risk at $M=256$.}
 \label{fig:positive}
 \end{figure*}
 
 \paragraph{Continuous exponents and trained OLS.}
-We generate an off-grid mixture with exponents $(0.337,0.873)$ and extrapolate from ten sizes up to $4096$ to $M_\star=10^6$. Grids of 11, 21, 41, 81, and 161 points all cover the true target. The maximum per-unit curvature correction decreases from $0.537$ to $0.00210$, with the expected factor of four per grid halving; interval width decreases from $0.0238$ to $0.00107$ (Figure~\ref{fig:positive}a).
+The finite-dictionary demonstration covers all four plotted target scales simultaneously in $98.8\%$ of 250 runs at nominal $90\%$ coverage, while its width grows with extrapolation distance (Figure~\ref{fig:positive}a). We also generate an off-grid mixture with exponents $(0.337,0.873)$ and extrapolate from ten sizes up to $4096$ to $M_\star=10^6$. Grids of 11, 21, 41, 81, and 161 points all cover the true target. The maximum per-unit curvature correction decreases from $0.537$ to $0.00210$, with the expected factor of four per grid halving; interval width decreases from $0.0238$ to $0.00107$ (Figure~\ref{fig:positive}b).
 
-For the trained bridge, we simulate 5,000 exact OLS risk draws at nine dimensions with $n=8000$. Across dimensions $16$--$256$, the largest relative error between the debiased empirical mean and the oracle spectral risk is $6.1\times10^{-5}$. Using only debiased pilots through $M=96$, the continuous certificate at $M=256$ is $[0.02150,0.02268]$, containing the oracle risk $0.022545$ (Figure~\ref{fig:positive}b).
+For the trained bridge, we simulate 5,000 exact OLS risk draws at nine dimensions with $n=8000$. Across dimensions $16$--$256$, the largest relative error between the debiased empirical mean and the oracle spectral risk is $6.1\times10^{-5}$. Using only debiased pilots through $M=96$, the continuous certificate at $M=256$ is $[0.02150,0.02268]$, containing the oracle risk $0.022545$ (Figure~\ref{fig:positive}c).
 
 \paragraph{Noisy synthetic stress test.}
 We use nine pilot scales, target $10^6$, known standard error $10^{-3}$, and 30 noise realizations for each of a single power, hidden crossover, and three-component spectrum. Baselines are a constrained floor-plus-power fit with parametric bootstrap, a weak-prior Laplace interval, and a positive two-power point fit. \ScaleCert\ uses the continuous exponent interval $[0.05,1.5]$. We call a miss \emph{false-confident} when its interval width is at most $10\%$ of the observed pilot-loss range.

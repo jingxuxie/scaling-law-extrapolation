@@ -17,6 +17,11 @@ import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -39,7 +44,6 @@ from scaling_extrapolation import (
 )
 
 
-ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 FIGURES = ROOT / "paper" / "figures"
 PUBLIC = ROOT / "data" / "public"

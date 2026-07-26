@@ -287,7 +287,7 @@ def continuous_cell_matrices(
 
     nominal_columns: list[FloatArray] = [np.ones_like(m)]
     slack_columns: list[FloatArray] = [np.zeros_like(m)]
-    for left, right in zip(grid[:-1], grid[1:], strict=True):
+    for left, right in zip(grid[:-1], grid[1:]):
         width = float(right - left)
         curvature = exponent_curvature_upper(
             m, float(left), float(right), basis=basis
