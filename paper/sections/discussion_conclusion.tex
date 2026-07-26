@@ -1,0 +1,14 @@
+\section{Implications and Limitations}
+
+\paragraph{Scale diversity versus replication.}
+Theorem~\ref{thm:matched} applies to any arrangement of $m$ design points inside $[-T,T]$. Repeating runs shrinks noise as $m^{-1/2}$ but does not reveal the curvature outside the available span. When possible, pilot budgets should include genuinely separated log-scales rather than only dense replication near one scale.
+
+\paragraph{Assumptions must be visible.}
+No finite interval can exclude every slower hidden component. \ScaleCert\ is informative only after declaring an exponent dictionary, nonnegativity, and an error model. This is a feature rather than a defect: sensitivity to the exponent range can be reported directly. A narrow interval from a single-power family and a wide interval from a broad mixture family answer different conditional questions.
+
+\paragraph{Current scope.}
+Our exact model studies population truncation risk and Gaussian measurement noise. Optimization, finite-sample regression, correlated errors across scales, and adaptive selection of pilot scales require extensions. The positive certificate currently uses a finite exponent grid; continuous dictionaries lead naturally to semi-infinite or moment problems. Real learning curves may be nonmonotone, in which case a positive tail mixture is intentionally rejected rather than forced to fit.
+
+\section{Conclusion}
+
+A high in-range $R^2$ does not certify a scaling-law extrapolation. In linear regression, a below-noise spectral component can change the asymptotic exponent, and floor--exponent confounding creates a quantitative barrier controlled by the observed log-span. These impossibility results motivate set-valued prediction. \ScaleCert\ converts explicit spectral assumptions and pilot uncertainty into a sharp, finite-sample target interval or an abstention. The broader message is methodological: extrapolation claims should report not only a fitted slope, but also which alternative regimes the pilot experiments were capable of ruling out.

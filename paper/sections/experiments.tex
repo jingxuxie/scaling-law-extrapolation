@@ -1,0 +1,48 @@
+\section{Exact-Risk Experiments}
+
+All experiments use exact zeta-tail risks and run in seconds on a laptop. Code generates every figure and table from a fixed seed.
+
+\begin{figure}[t]
+\centering
+\IfFileExists{figures/matched_floor_exponent.pdf}{%
+\includegraphics[width=\linewidth]{figures/matched_floor_exponent.pdf}}{%
+\figplaceholder{Matched floor--exponent construction}}
+\caption{Two one-power curves match value and slope in the center of a narrow pilot range. Their maximum pilot gap is $8.15\times10^{-4}$, but their gap reaches $2.23\times10^{-2}$ at the target shown.}
+\label{fig:matched}
+\end{figure}
+
+\paragraph{Matched one-power curves.}
+We use $E=0.20$, $S=0.08$, $\alpha=0.35$, $\beta=0.55$, and nine pilot scales with $t\in[-0.5,0.5]$. With per-point standard deviation $0.005$, the exact Gaussian KL divergence between the pilot experiments is $0.028$. At $t_\star=6.5$, the risk predictions differ by $0.0223$ (Figure~\ref{fig:matched}). This illustrates the mechanism in Theorem~\ref{thm:matched}; the theorem itself applies to all parameter choices satisfying its conditions.
+
+\begin{figure}[t]
+\centering
+\IfFileExists{figures/hidden_crossover.pdf}{%
+\includegraphics[width=\linewidth]{figures/hidden_crossover.pdf}}{%
+\figplaceholder{Hidden spectral crossover}}
+\caption{A slower component is below the pilot noise but eventually dominates the visible tail. A single-power fit is nearly exact on the pilot range yet misses the future regime. The curves are exact risks of linear-regression problems from Proposition~\ref{prop:realizability}.}
+\label{fig:hidden}
+\end{figure}
+
+\paragraph{Hidden spectral component.}
+We set $(\alpha,\beta)=(0.25,0.80)$, use nine pilot sizes from $32$ to $4096$, and choose $B$ according to Theorem~\ref{thm:hidden} with $\sigma=0.002$. The hidden-to-visible excess-risk ratio is $0.043$ at $M=32$, $0.62$ at $4096$, $45.1$ at $10^7$, and $567$ at $10^9$ (Figure~\ref{fig:hidden}). A best single-power fit over the pilot points estimates exponent $0.756$ and has maximum residual only $0.027\sigma$. Nonetheless, it underestimates the model size needed to reach excess risk $3\times10^{-5}$ by $13.5\times$, and the size needed for $10^{-5}$ by $186\times$. Thus an apparently decisive fit can be decision-theoretically wrong.
+
+\paragraph{Certificate calibration.}
+We simulated 250 noisy pilot datasets from a two-component curve contained in a six-exponent dictionary and requested $90\%$ simultaneous coverage at four targets from $4096$ to $10^9$. One confidence set was empty, as permitted under the $10\%$ model-rejection probability. Counting an empty set as noncoverage, simultaneous target coverage was $98.8\%$ (247/250); conditional on feasibility it was $99.2\%$ (247/249), reflecting the conservatism of Bonferroni bands. Mean interval width among feasible runs increased from $8.63\times10^{-4}$ at the edge of the pilot range to $3.04\times10^{-3}$ at $10^9$. These experiments validate implementation and coverage, not yet superiority on real neural scaling curves.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Target $M$ & Coverage & Mean width & Truth \\
+\midrule
+$4.096\times10^3$ & 0.992 & $8.63\times10^{-4}$ & 0.200261 \\
+$10^5$             & 0.996 & $1.97\times10^{-3}$ & 0.200057 \\
+$10^7$             & 1.000 & $2.73\times10^{-3}$ & 0.200015 \\
+$10^9$             & 1.000 & $3.04\times10^{-3}$ & 0.200005 \\
+\bottomrule
+\end{tabular}
+\caption{Marginal coverage over 249 feasible runs. Simultaneous coverage is 0.988 unconditionally and 0.992 conditional on feasibility; nominal coverage is 0.90.}
+\label{tab:coverage}
+\end{table}
+
