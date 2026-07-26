@@ -3,6 +3,8 @@ name: Export expansion snapshot
 on:
   push:
     branches: [agent/expand-aaai-paper]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
