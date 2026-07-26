@@ -7,10 +7,14 @@ __pycache__/
 build/
 dist/
 
-# Generated experiment figures (regenerate with experiments/run_all.py)
+# Generated experiment figures (regenerate with experiment scripts)
 paper/figures/*.pdf
 paper/figures/*.png
 !paper/figures/.gitkeep
+
+# Public benchmark files are downloaded from a pinned upstream commit.
+data/public/*.csv
+!data/public/README.md
 
 # LaTeX build products
 paper/*.aux
@@ -21,6 +25,8 @@ paper/*.fls
 paper/*.log
 paper/*.out
 paper/*.synctex.gz
+paper/ReproducibilityChecklist.pdf
+paper/checklist.pdf
 paper/draft.pdf
 paper/main.pdf
 paper/supplement.pdf

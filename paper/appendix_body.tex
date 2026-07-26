@@ -147,11 +147,132 @@ L_\delta(M)\le\Risk_{\theta^\star}(M)\le U_\delta(M).
 Because the same event and the same feasible coefficient vector apply to all $M$, coverage is simultaneous over any number of targets. Sharpness relative to $\Cset_\delta$ follows directly from minimizing and maximizing the linear target functional over that set.
 \end{proof}
 
+
+\section{Proofs for Continuous-Exponent \ScaleCert}
+
+\begin{proof}[Proof of Lemma~\ref{lem:secant}]
+Fix a cell $[a,b]$, write $\Delta=b-a$, and let
+$\lambda=(b-\alpha)/\Delta$. The interpolation error formula for a twice differentiable convex function gives
+\begin{align*}
+0 &\le \lambda\phi_a(M)+(1-\lambda)\phi_b(M)-\phi_\alpha(M)\\
+  &\le \frac{\Delta^2}{8}
+  \sup_{u\in[a,b]}\partial_u^2\phi_u(M).
+\end{align*}
+Termwise differentiation is justified by uniform convergence on every compact positive exponent interval and yields Eq.~\eqref{eq:basis-curvature}. This proves Eq.~\eqref{eq:secant-bound}.
+
+For completeness, our implementation uses an explicit upper bound. Set
+$g_a(x)=(\log x)^2x^{-1-a}$ and
+$J=\max\{M,\lceil e^{2/(1+a)}\rceil\}$. The function $g_a$ decreases for $x\ge J$. Hence
+\begin{align*}
+\partial_a^2\phi_a(M)
+&=\sum_{j=M+1}^{J}g_a(j)+\sum_{j>J}g_a(j)\\
+&\le \sum_{j=M+1}^{J}g_a(j)+\int_J^\infty g_a(x)\,dx,
+\end{align*}
+where
+\[
+\int_J^\infty g_a(x)\,dx
+=J^{-a}\left\{\frac{(\log J)^2}{a}
++\frac{2\log J}{a^2}+\frac{2}{a^3}\right\}.
+\]
+Because every term in Eq.~\eqref{eq:basis-curvature} decreases with the exponent, this also bounds the curvature over $[a,b]$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:continuous-certificate}]
+Partition the true measure as $\mu=\sum_\ell\mu_\ell$, where $\mu_\ell$ is supported on
+$[\gamma_\ell,\gamma_{\ell+1}]$. Define
+\begin{align*}
+p_\ell&=\int\frac{\gamma_{\ell+1}-\alpha}{\Delta_\ell}\,d\mu_\ell(\alpha),\\
+q_\ell&=\int\frac{\alpha-\gamma_\ell}{\Delta_\ell}\,d\mu_\ell(\alpha).
+\end{align*}
+Both are nonnegative and $p_\ell+q_\ell=\mu_\ell([\gamma_\ell,\gamma_{\ell+1}])$. Integrating the pointwise secant inequalities from Lemma~\ref{lem:secant} gives, for every $M$,
+\[
+D_M\vartheta-G_M\vartheta
+\le \Risk_{E,\mu}(M)\le D_M\vartheta.
+\]
+On the event $\ell_i\le\Risk_{E,\mu}(M_i)\le u_i$ for every pilot,
+$D_{M_i}\vartheta\ge\ell_i$ and
+$(D_{M_i}-G_{M_i})\vartheta\le u_i$, so the mapped vector lies in
+$\widetilde\Cset_\delta$. The target inequalities and the definitions of the two LP objectives then imply Eq.~\eqref{eq:continuous-coverage}. Gaussianity plus a Bonferroni union bound gives the pilot-band event probability at least $1-\delta$, and the same event covers every target simultaneously.
+
+Finally, for the vector mapped from the true measure,
+\begin{align*}
+G_M\vartheta
+&=\sum_\ell\varepsilon_\ell(M)(p_\ell+q_\ell)\\
+&\le W\max_\ell\varepsilon_\ell(M)
+\end{align*}
+when $\mu$ has total mass at most $W$. Thus the true curve and its secant representation differ by at most this amount. Since each $\varepsilon_\ell(M)$ is quadratic in $\Delta_\ell$, the stated discretization rate follows.
+\end{proof}
+
+\section{Proof of the Finite-Sample OLS Bridge}
+
+\begin{proof}[Proof of Proposition~\ref{prop:ols}]
+After whitening, write the first $M$ coordinates as $X\sim\Normal(0,I_M)$. The omitted coordinates and label noise form a residual $\eta_M$ independent of $X$ with variance
+$\E\eta_M^2=\Risk(M)$. Gaussianity of this residual is not needed for the mean identity. For a training design matrix $\mathbf X\in\R^{n\times M}$ and residual vector $\boldsymbol\eta$, ordinary least squares satisfies
+\[
+\widehat\theta-\theta=(\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\boldsymbol\eta.
+\]
+On an independent test point, conditional test risk is
+$\Risk(M)+\|\widehat\theta-\theta\|_2^2$. Conditional on $\mathbf X$,
+\[
+\E_{\boldsymbol\eta}\|\widehat\theta-\theta\|_2^2
+=\Risk(M)\operatorname{tr}\{(\mathbf X^\top\mathbf X)^{-1}\}.
+\]
+Since $\mathbf X^\top\mathbf X$ is Wishart with $n$ degrees of freedom \citep{muirhead1982aspects},
+$\E(\mathbf X^\top\mathbf X)^{-1}=I_M/(n-M-1)$ for $n>M+1$. Therefore
+\begin{align*}
+\E\widehat\Risk_{\mathrm{OLS}}(M)
+&=\Risk(M)\left(1+\frac{M}{n-M-1}\right)\\
+&=\Risk(M)\frac{n-1}{n-M-1}.
+\end{align*}
+
+For the distributional identity, additionally assume that $\eta_M$ is Gaussian. Conditional Gaussianity then gives
+$(\widehat\theta-\theta)/\sqrt{\Risk(M)}$ as a multivariate Student variable obtained by mixing a standard normal vector with an inverse-Wishart matrix. The corresponding squared norm has the Hotelling form
+\[
+\frac{\|\widehat\theta-\theta\|_2^2}{\Risk(M)}
+\overset d=\frac{M}{n-M+1}F_{M,n-M+1},
+\]
+which proves Eq.~\eqref{eq:ols-distribution}.
+\end{proof}
+
 \section{Additional Experimental Details}
 
-The exact basis is evaluated with SciPy's Hurwitz-zeta implementation. The certificate uses the HiGHS linear-programming backend. All coefficients, including the floor, are constrained to be nonnegative. The calibration experiment uses integer pilot sizes approximately geometrically spaced from $32$ to $4096$, standard error $2\times10^{-4}$, true exponents $(0.25,0.80)$, weights $(2\times10^{-4},0.10)$, floor $0.20$, and dictionary
-$\{0.20,0.25,0.35,0.50,0.80,1.00\}$. The random seed is fixed in the released script.
+\paragraph{Exact constructions.}
+The zeta basis is evaluated with SciPy and all LPs use the HiGHS backend. The matched-pair and hidden-crossover settings are generated by \texttt{experiments/run\_all.py}. The latter also reproduces the compute-to-target ratios reported in the main text.
 
-\section{Planned Extensions}
+\paragraph{Continuous refinement.}
+The off-grid curve has floor $0.18$, exponents $(0.337,0.873)$, weights $(0.004,0.12)$, ten integer pilot sizes geometrically spaced from $16$ to $4096$, target $10^6$, and standard error $2\times10^{-5}$. The exponent interval is $[0.15,1.2]$. We use 11, 21, 41, 81, and 161 equally spaced grid points.
 
-The next proof and experimental milestones are: (i) a continuous-exponent certificate via discretization bounds or a semi-infinite program; (ii) correlated observation errors across scales; (iii) optimal pilot design under a fixed number of training runs; (iv) finite-sample ridge and SGD experiments; and (v) rolling-origin evaluation on public neural learning curves. These are not assumed by the theorems in the current draft.
+\paragraph{Finite-sample OLS.}
+The oracle curve has floor $0.02$, exponents $(0.35,0.90)$, and weights $(0.004,0.12)$. We use $n=8000$, dimensions
+$\{16,24,32,48,64,96,128,192,256\}$, and 5,000 draws from Eq.~\eqref{eq:ols-distribution}. The certificate uses dimensions through $96$ and an exponent grid of 43 points over $[0.15,1.20]$. A separate direct Gaussian-design unit test verifies the analytic sampler.
+
+\paragraph{Synthetic benchmark.}
+Each family uses nine pilot scales geometrically spaced from $1$ to $128$, target $10^6$, independent standard error $10^{-3}$, and 30 repetitions. The families $(E;\alpha;w)$ are
+$(0.20;(0.55);(0.15))$,
+$(0.20;(0.10,0.80);(3\times10^{-4},0.15))$, and
+$(0.18;(0.12,0.45,1.10);(2.5\times10^{-4},0.020,0.12))$.
+Bootstrap intervals use 20 refits and nominal coverage $0.90$; Laplace intervals use 1,200 posterior-normal draws. The broad certificate spans $[0.05,1.5]$ with 31 grid points.
+
+\paragraph{Public curves.}
+We use the NSL-PFN data at repository revision
+\texttt{10a5a609}; the runner verifies SHA-256 checksums before analysis. The benchmark comprises five NMT and four image-classification curves, each evaluated at pilot fractions $0.50$, $0.70$, and $0.85$. No independent standard errors are available. We therefore solve an LP for the minimum uniform in-range radius and report held-out sensitivity to radius multipliers $1$--$4$. This experiment is descriptive and is not used to validate Theorem~\ref{thm:continuous-certificate}.
+
+\paragraph{Reproducibility.}
+The submission pipeline runs every stage in a fresh process through
+\texttt{experiments/run\_submission.py}. Machine-readable outputs include per-run predictions and aggregate tables. All experiments are CPU-only; CI uses Ubuntu and Python~3.11 with the package ranges in \texttt{pyproject.toml}. Random experiments use fixed numerical seeds, and public-curve seeds are derived from SHA-256 identifiers rather than process-dependent hashes. GitHub Actions executes the unit tests, exact-risk script, all submission stages, and the manuscript build.
+
+\begin{figure*}[t]
+\centering
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/synthetic_coverage_width.pdf}
+\textbf{(a) Synthetic known-noise benchmark}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\includegraphics[width=\linewidth]{figures/public_coverage_width.pdf}
+\textbf{(b) Public structural-mismatch sensitivity}
+\end{minipage}
+\caption{Coverage--informativeness frontiers. Synthetic coverage is evaluated against the nominal known-noise experiment; the public panel is descriptive and varies the declared structural-mismatch radius.}
+\label{fig:supp-frontiers}
+\end{figure*}

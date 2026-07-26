@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import os
 import subprocess
 import sys
@@ -19,6 +20,8 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42
+matplotlib.rcParams["ps.fonttype"] = 42
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -49,6 +52,16 @@ PUBLIC_URLS = {
     "benchmark.lang.csv": f"https://raw.githubusercontent.com/DongWooLee-Eli/nslpfn/{PINNED_NSLPFN}/data/benchmark.lang.csv",
     "benchmark.vision.csv": f"https://raw.githubusercontent.com/DongWooLee-Eli/nslpfn/{PINNED_NSLPFN}/data/benchmark.vision.csv",
 }
+PUBLIC_SHA256 = {
+    "benchmark.lang.csv": "63c346db00a66b692e1ea9a0f71a2f2b267e55f74be5b863a92e199dffbf0983",
+    "benchmark.vision.csv": "23b00692d71e58aa5a2a941e831d57688e0977fdcf5f5125ff7b64283b5d9e83",
+}
+
+
+def stable_seed(*parts: object) -> int:
+    """Return a deterministic 32-bit seed independent of PYTHONHASHSEED."""
+    digest = hashlib.sha256("|".join(map(str, parts)).encode("utf-8")).digest()
+    return int.from_bytes(digest[:4], byteorder="little", signed=False)
 
 
 def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
@@ -60,7 +73,7 @@ def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
             if key not in fields:
                 fields.append(key)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -322,6 +335,11 @@ def fetch_public_data() -> None:
         if not path.exists():
             print(f"Downloading pinned public curve file: {url}")
             urllib.request.urlretrieve(url, path)
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != PUBLIC_SHA256[filename]:
+            raise RuntimeError(
+                f"checksum mismatch for {filename}: {digest} != {PUBLIC_SHA256[filename]}"
+            )
 
 
 def _read_public_curves() -> list[tuple[str, str, np.ndarray, np.ndarray]]:
@@ -381,10 +399,10 @@ def public_benchmark() -> None:
                 target_norm,
                 repetitions=50,
                 delta=0.10,
-                seed=hash((domain, name, n_pilot)) % (2**32),
+                seed=stable_seed(domain, name, n_pilot),
             )
             minimum_radius = minimum_uniform_band_radius(x_norm, y, grid, basis="power")
-            for multiplier in [1.0, 1.5, 2.0]:
+            for multiplier in [1.0, 2.0, 3.0, 4.0]:
                 radius = multiplier * minimum_radius + 1e-9
                 certificate = continuous_certificate_interval_from_bands(
                     x_norm,
@@ -455,16 +473,26 @@ def public_benchmark() -> None:
             )
     write_csv(RESULTS / "public_rolling_origin_summary.csv", summary_rows)
 
-    plot_rows = [row for row in summary_rows if row["coverage"] != ""]
+    plot_rows = [
+        row for row in summary_rows
+        if str(row["method"]).startswith("continuous_cert")
+    ]
     fig, ax = plt.subplots(figsize=(6.5, 3.9))
+    marker = {"IC": "o", "NMT": "s"}
     for row in plot_rows:
-        ax.scatter(float(row["median_width"]), float(row["coverage"]), label=f"{row['domain']} / {row['method']}")
+        ax.scatter(
+            float(row["median_width"]),
+            float(row["coverage"]),
+            marker=marker[str(row["domain"])],
+            label=f"{row['domain']} / {str(row['method']).split('_')[-1]}",
+        )
     ax.set_xscale("log")
     ax.set_xlabel("median interval width")
     ax.set_ylabel("descriptive held-out coverage")
     ax.set_ylim(-0.02, 1.05)
-    ax.set_title("Public rolling-origin coverage--width frontier")
-    ax.legend(fontsize=7)
+    ax.axhline(0.90, linestyle=":", label="90% reference")
+    ax.set_title("Public curves: mismatch sensitivity frontier")
+    ax.legend(fontsize=7, ncol=2)
     fig.tight_layout()
     fig.savefig(FIGURES / "public_coverage_width.pdf")
     fig.savefig(FIGURES / "public_coverage_width.png", dpi=180)

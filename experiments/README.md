@@ -1,17 +1,27 @@
 # Experiments
 
-Run all current experiments from the repository root:
+All experiments are CPU-only and deterministic.
+
+## Exact constructions
 
 ```bash
-python experiments/run_all.py
+PYTHONPATH=src python experiments/run_all.py
 ```
 
-The script is deterministic and writes:
+This produces the matched floor--exponent pair, hidden crossover, compute-to-target comparison, and finite-dictionary coverage demonstration.
 
-- `matched_floor_exponent.csv`: pilot gap, target gap, and Gaussian KL for the value-and-slope-matched pair.
-- `hidden_crossover.csv`: visible/hidden tail ratios across scales.
-- `single_power_fit.csv`: compute-to-target underestimation from an almost exact pilot fit.
-- `certificate_coverage.csv`: marginal and simultaneous coverage plus interval widths.
-- paper figures under `paper/figures/`.
+## Submission benchmark
 
-All current experiments use exact Hurwitz-zeta tails and finish in seconds on a laptop.
+```bash
+PYTHONPATH=src \
+  SYNTHETIC_REPETITIONS=30 \
+  BOOTSTRAP_REPETITIONS=20 \
+  OLS_REPETITIONS=5000 \
+  python experiments/run_submission.py --stage all
+```
+
+Each stage can also be run independently with `--stage continuous`, `ols`, `synthetic`, or `public`. The `all` mode launches each stage in a fresh subprocess to isolate repeated nonlinear fits.
+
+The public stage downloads two files from the NSL-PFN repository at commit `10a5a60911a2a22ef453d8b4ddf1408b6a6075d9`, verifies their SHA-256 checksums, and evaluates chronological prefixes only. See `data/public/README.md`.
+
+Outputs under `results/` include both per-run predictions and aggregate summaries. PDF figures use embedded TrueType fonts (`matplotlib.pdf.fonttype=42`) to satisfy AAAI's prohibition on Type-3 fonts.
