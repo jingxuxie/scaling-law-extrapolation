@@ -26,18 +26,82 @@ jobs:
           test "$actual" = "$expected"
           git apply --check /tmp/final.patch
           git apply --index /tmp/final.patch
-          git rm -r .final-patch
-          git rm .github/workflows/apply-final-patch.yml
-          printf '%s' 'bmFtZTogdGVzdHMKCm9uOgogIHB1c2g6CiAgcHVsbF9yZXF1ZXN0OgoKam9iczoKICBweXRob246CiAgICBydW5zLW9uOiB1YnVudHUtbGF0ZXN0CiAgICBzdGVwczoKICAgICAgLSB1c2VzOiBhY3Rpb25zL2NoZWNrb3V0QHY0CiAgICAgIC0gdXNlczogYWN0aW9ucy9zZXR1cC1weXRob25AdjUKICAgICAgICB3aXRoOgogICAgICAgICAgcHl0aG9uLXZlcnNpb246ICIzLjExIgogICAgICAgICAgY2FjaGU6IHBpcAogICAgICAtIG5hbWU6IEluc3RhbGwKICAgICAgICBydW46IHB5dGhvbiAtbSBwaXAgaW5zdGFsbCAtZSAiLltkZXZdIgogICAgICAtIG5hbWU6IFVuaXQgdGVzdHMKICAgICAgICBydW46IHB5dGVzdCAtcQogICAgICAtIG5hbWU6IFJlcHJvZHVjZSBleGFjdC1yaXNrIGV4cGVyaW1lbnRzCiAgICAgICAgcnVuOiBweXRob24gZXhwZXJpbWVudHMvcnVuX2FsbC5weQo=' | base64 --decode > .github/workflows/tests.yml
-      - name: Publish clean assembled source tree
+          git restore --source=HEAD --staged --worktree .github/workflows
+      - name: Publish assembled non-workflow sources
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "paper: assemble final submission sources"
           git push origin HEAD:${{ github.head_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install, test, and reproduce evidence
+        env:
+          SYNTHETIC_REPETITIONS: "30"
+          BOOTSTRAP_REPETITIONS: "20"
+          OLS_REPETITIONS: "5000"
+          PYTHONHASHSEED: "0"
+          OMP_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          NUMEXPR_NUM_THREADS: "1"
+        run: |
+          python -m pip install -e ".[dev]"
+          pytest -q
+          python experiments/run_all.py
+          python experiments/run_submission.py --stage all
+      - name: Compile manuscript, supplement, and checklist
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: |
+            main.tex
+            supplement.tex
+            checklist.tex
+          working_directory: paper
+          work_in_root_file_dir: true
+          texlive_version: 2025
+        env:
+          TEXINPUTS: ".:../AAAI_AuthorKit27//:"
+          BSTINPUTS: ".:../AAAI_AuthorKit27//:"
+      - name: PDF and log preflight
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils
+          pages=$(pdfinfo paper/main.pdf | awk '/Pages/{print $2}')
+          test "$pages" -le 7
+          for file in paper/main.pdf paper/supplement.pdf paper/checklist.pdf; do
+            if pdffonts "$file" | grep -q 'Type 3'; then
+              echo "Type-3 font detected in $file"
+              exit 1
+            fi
+          done
+          ! grep -Eq 'Overfull|undefined references|Citation.*undefined|Reference.*undefined' \
+            paper/main.log paper/supplement.log paper/checklist.log
+      - name: Publish generated result tables
+        run: |
+          git add results/*.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "experiments: record final submission evidence"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
+      - name: Upload validated submission package
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-submission-package
+          path: |
+            paper/main.pdf
+            paper/supplement.pdf
+            paper/checklist.pdf
+            paper/figures/*.pdf
+            results/*.csv
+          if-no-files-found: error
+          retention-days: 14
 
   python:
+    if: github.event_name != 'pull_request' || github.head_ref != 'agent/final-submission-package'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
