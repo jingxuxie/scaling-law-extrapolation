@@ -1,0 +1,118 @@
+\section{Identifiability Limits}
+
+\subsection{A Hidden Component Can Change the Exponent}
+
+Let $M_i\in[M_{\min},M_{\max}]$ and, for clarity, let all errors in Eq.~\eqref{eq:observations} have variance $\sigma^2$. Fix $0<\alpha<\beta$, $A>0$, and define
+\begin{align}
+ \Risk_0(M)&=E+A\phi_\beta(M),\\
+ \Risk_1(M)&=E+A\phi_\beta(M)+B\phi_\alpha(M).
+ \label{eq:hidden-pair}
+\end{align}
+The second component decays more slowly but may have a very small coefficient.
+
+\begin{theorem}[Hidden-crossover impossibility]
+\label{thm:hidden}
+For any tolerance $\eta>0$, choose
+$B=\eta/\phi_\alpha(M_{\min})$. Then
+\begin{equation}
+ \sup_{M\in[M_{\min},M_{\max}]}
+ |\Risk_1(M)-\Risk_0(M)|\le\eta.
+ \label{eq:pilot-close}
+\end{equation}
+For $m$ Gaussian pilot observations,
+\begin{equation}
+ \KL(P_0\|P_1)\le\frac{m\eta^2}{2\sigma^2}.
+ \label{eq:hidden-kl}
+\end{equation}
+Taking $\eta=\sigma/(2\sqrt m)$ gives $\KL(P_0\|P_1)\le1/8$. Nevertheless, the asymptotic excess-risk exponents are $\beta$ and $\alpha$, respectively. Consequently, every exponent estimator $\widehat a$ satisfies
+\begin{equation}
+ \max_{k\in\{0,1\}}\E_k|\widehat a-a_k|
+ \ge \frac{3}{16}(\beta-\alpha).
+ \label{eq:exponent-lower}
+\end{equation}
+Furthermore,
+\begin{equation}
+ \frac{\Risk_1(M)-E}{\Risk_0(M)-E}
+ \ge 1+\frac{B\beta}{A\alpha}\frac{M^\beta}{(M+1)^\alpha},
+ \label{eq:relative-divergence}
+\end{equation}
+which diverges as $M^{\beta-\alpha}$.
+\end{theorem}
+
+The theorem holds even if the floor is known. It says that no amount of in-range goodness of fit identifies an unseen slower component without a structural restriction excluding it.
+
+A decision consequence is especially severe. Define
+$C_k(\tau)=\min\{M:\Risk_k(M)-E\le\tau\}$. Integral bounds on $\phi_\alpha$ imply
+\begin{align}
+ C_1(\tau)&\ge \left(\frac{B}{\alpha\tau}\right)^{1/\alpha}-1,\\
+ C_0(\tau)&\le \left\lceil\left(\frac{A}{\beta\tau}\right)^{1/\beta}\right\rceil.
+ \label{eq:compute-target}
+\end{align}
+Their ratio is unbounded as $\tau\downarrow0$. Hence a below-noise component can have little effect on the next measured loss while changing the resource budget required for a demanding target by orders of magnitude.
+
+\subsection{Floor--Exponent Confounding Within One Power}
+
+The previous construction changes the number of components. We next show that ambiguity already occurs within Eq.~\eqref{eq:standard-law}. Fix $E\ge0$, $S>0$, and $0<\alpha<\beta$. On centered log scale define
+\begin{align}
+ f_0(t)&=E+S e^{-\alpha t},\\
+ f_1(t)&=E+S\left(1-\frac{\alpha}{\beta}\right)
+       +\frac{\alpha S}{\beta}e^{-\beta t}.
+ \label{eq:matched-pair}
+\end{align}
+Both are floor-plus-power laws. Direct calculation gives
+$f_0(0)=f_1(0)$ and $f_0'(0)=f_1'(0)$: the alternative adjusts its floor and amplitude to hide the exponent change to first order.
+By Corollary~\ref{cor:exact-power}, both curves are exact linear-regression risks at integer model sizes when $t=\log((M+1)/(M_0+1))$.
+
+\begin{theorem}[Quadratic log-span barrier]
+\label{thm:matched}
+Let $\delta=\beta-\alpha$ and suppose $\beta\le\bar\alpha$. For all $|t|\le T$,
+\begin{equation}
+ 0\le f_1(t)-f_0(t)
+ \le \frac{\alpha S\delta}{2}e^{\bar\alpha T}T^2.
+ \label{eq:observed-gap}
+\end{equation}
+At any target $t_\star\ge0$,
+\begin{equation}
+ f_1(t_\star)-f_0(t_\star)
+ \ge \frac{\alpha S\delta}{2}e^{-\bar\alpha t_\star}t_\star^2.
+ \label{eq:target-gap}
+\end{equation}
+For $m$ observations with variance $\sigma^2$ at arbitrary points in $[-T,T]$, if
+\begin{equation}
+ \delta\le
+ \frac{\sigma}{\alpha S e^{\bar\alpha T}T^2\sqrt m},
+ \label{eq:delta-choice}
+\end{equation}
+then every target predictor $\widehat f_\star$ obeys
+\begin{equation}
+ \max_{k\in\{0,1\}}
+ \E_k|\widehat f_\star-f_k(t_\star)|
+ \ge \frac{3\alpha S\delta}{32}
+ e^{-\bar\alpha t_\star}t_\star^2.
+ \label{eq:target-lower}
+\end{equation}
+The same experiment yields exponent-estimation risk at least $3\delta/16$.
+\end{theorem}
+
+More explicitly, choose
+$\delta_\star=\sigma/(\alpha S e^{\bar\alpha T}T^2\sqrt m)$
+and suppose $\delta_\star\le\bar\alpha-\alpha$ and
+$\bar\alpha T,\bar\alpha(T+h)\le1$. There then exist two curves in the standard family, with exponent gap $\delta_\star$, such that
+\begin{equation}
+ \inf_{\widehat f_\star}\max_{k\in\{0,1\}}
+ \E_k|\widehat f_\star-f_k(T+h)|
+ \ge \frac{3e^{-2}}{32}\frac{\sigma}{\sqrt m}
+ \left(1+\frac{h}{T}\right)^2.
+ \label{eq:horizon-ratio}
+\end{equation}
+Replication helps only as $m^{-1/2}$, while insufficient log-span enters quadratically. The result is a lower bound, not a claim that every fitted scaling law attains this error.
+
+\paragraph{Proof idea.}
+Let $H(z)=1-(1+z)e^{-z}$. The gap in Eq.~\eqref{eq:matched-pair} admits the exact representation
+\begin{equation}
+ f_1(t)-f_0(t)
+ =\int_\alpha^\beta\frac{\alpha S}{u^2}H(ut)\,du.
+ \label{eq:gap-integral}
+\end{equation}
+Since $0\le H(z)\le e^{|z|}z^2/2$ and $H(z)\ge e^{-z}z^2/2$ for $z\ge0$, Eqs.~\eqref{eq:observed-gap}--\eqref{eq:target-gap} follow. Equation~\eqref{eq:delta-choice} makes the Gaussian KL divergence at most $1/8$; Le Cam's two-point method completes the proof. Full details are in the supplement.
+

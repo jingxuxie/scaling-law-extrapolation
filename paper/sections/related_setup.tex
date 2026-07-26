@@ -1,0 +1,32 @@
+\section{Related Work}
+
+\paragraph{Empirical scaling laws.}
+Power-law relations between loss and resources have been documented across language, vision, and other domains \citep{hestness2017deep,rosenfeld2020constructive,kaplan2020scaling,henighan2020scaling,hoffmann2022empirical}. Broken neural scaling laws model crossovers and nonmonotonic behavior with smoothly joined regimes \citep{caballero2022broken}. Observational laws and downstream transfer laws broaden the objects being predicted \citep{ruan2024observational,lourie2025unreliable}. Our focus is not a new point-fit functional form, but partial identification: the set of future values that cannot be ruled out by the pilot data and a declared structural class.
+
+\paragraph{Theory from spectra.}
+Power-law eigenspectra and source conditions explain polynomial risk decay in kernel, random-feature, and linear models. Recent work derives joint parameter--data--compute laws for one-pass and multi-pass SGD \citep{lin2024scaling,bordelon2024dynamical,lin2025improved}. We use a simpler population truncation model, which makes the spectral tail exactly observable and lets us prove impossibility without asymptotic random-matrix approximations.
+
+\paragraph{Learning-curve extrapolation and uncertainty.}
+Learning-curve prediction has long been used for early stopping and hyperparameter optimization \citep{domhan2015speeding,klein2017fast}. Modern Bayesian methods infer posterior predictive curves or meta-learn extrapolation from synthetic priors \citep{adriaensen2023efficient,lee2025bayesian}. Their uncertainty is conditional on a prior and likelihood. Our lower bounds are prior-free over explicit curve classes, while \ScaleCert\ provides a frequentist coverage statement and exposes exactly which spectral assumptions make the answer informative.
+
+\paragraph{Identifiability and experimental design.}
+Contemporaneous work shows that fitting joint parameter--data laws along a nearly collinear tokens-per-parameter ray makes the two coefficients ill-conditioned, and derives how diverse ratios restore conditioning \citep{kricheli2026coverage}. Our obstruction is complementary: it occurs in a one-dimensional resource variable, under arbitrary placement of pilot points inside a bounded log-scale interval, and persists even when the fitted family contains only one power. We additionally study alternatives with unobserved spectral regimes and return an honest partial-identification interval rather than a local covariance estimate. The lower-bound arguments use standard two-point testing ideas \citep{tsybakov2009introduction}.
+
+\section{Problem Setup}
+
+Let $M_1<\cdots<M_m\le M_{\max}$ be pilot model sizes and $M_\star>M_{\max}$ a target. We observe independent
+\begin{equation}
+  Y_i=\Risk(M_i)+\xi_i, \qquad \xi_i\sim\Normal(0,s_i^2).
+  \label{eq:observations}
+\end{equation}
+The standard errors $s_i$ may be obtained from repeated seeds or a validation-set calculation. We distinguish three estimands: the asymptotic exponent, the future risk $\Risk(M_\star)$, and the decision $\Risk(M_\star)\le\tau$. These need not have the same identifiability.
+
+For a risk curve with limiting floor $E_{\Risk}=\lim_{M\to\infty}\Risk(M)$, define its asymptotic excess-risk exponent, when the limit exists, by
+\begin{equation}
+ a(\Risk):=-\lim_{M\to\infty}
+ \frac{\log(\Risk(M)-E_{\Risk})}{\log M}.
+ \label{eq:exponent-functional}
+\end{equation}
+
+For the floor--exponent result, write $t=\log(M/M_0)$. The pilot interval is $[-T,T]$, whose total observed log-span is $2T$, and the target is $t_\star=T+h$. The ratio $h/T$ measures how far the prediction lies beyond the observed range.
+

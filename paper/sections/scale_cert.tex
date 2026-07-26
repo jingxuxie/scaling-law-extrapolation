@@ -1,0 +1,39 @@
+\section{Set-Valued Extrapolation with \ScaleCert}
+
+The lower bounds suggest changing the output: instead of forcing a point estimate, compute all target values compatible with the data and a declared spectral class. Choose a dictionary $\mathcal{A}=\{\alpha_1,\ldots,\alpha_L\}$ and define
+\begin{equation}
+ \Risk_\theta(M)=\theta_0+\sum_{\ell=1}^L\theta_\ell
+ \phi_{\alpha_\ell}(M),
+ \qquad \theta\ge0.
+ \label{eq:dictionary}
+\end{equation}
+Let
+$z_\delta=\Phi^{-1}(1-\delta/(2m))$ and
+\begin{equation}
+ \Cset_\delta=\left\{\theta\ge0:
+ |Y_i-\Risk_\theta(M_i)|\le z_\delta s_i,\; i\le m\right\}.
+ \label{eq:confidence-set}
+\end{equation}
+For a target $M_\star$, \ScaleCert\ solves
+\begin{equation}
+ L_\delta(M_\star)=\min_{\theta\in\Cset_\delta}\Risk_\theta(M_\star),
+ \quad
+ U_\delta(M_\star)=\max_{\theta\in\Cset_\delta}\Risk_\theta(M_\star).
+ \label{eq:lp}
+\end{equation}
+Both are linear programs. If $\Cset_\delta$ is empty, the dictionary is rejected at the chosen tolerance rather than silently extrapolated.
+
+\begin{theorem}[Finite-sample simultaneous coverage]
+\label{thm:certificate}
+Suppose the true risk has the form in Eq.~\eqref{eq:dictionary} and the noises in Eq.~\eqref{eq:observations} are independent Gaussian variables with known standard errors. Then, with probability at least $1-\delta$, for every target size $M$ simultaneously,
+\begin{equation}
+ \Risk(M)\in[L_\delta(M),U_\delta(M)].
+ \label{eq:coverage}
+\end{equation}
+The interval is sharp relative to $\Cset_\delta$: every value inside the optimization range is achieved by a coefficient vector not rejected by the simultaneous bands.
+\end{theorem}
+
+The proof is a union bound: the true coefficient vector lies in $\Cset_\delta$ with probability at least $1-\delta$, after which every target statement holds deterministically. Bounded model misspecification can be incorporated by replacing $z_\delta s_i$ with $z_\delta s_i+\rho_i$.
+
+For a loss target $\tau$, the method certifies success if $U_\delta(M_\star)\le\tau$, certifies failure if $L_\delta(M_\star)>\tau$, and otherwise abstains. The width $U_\delta-L_\delta$ defines a data-dependent safe extrapolation horizon.
+
