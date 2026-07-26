@@ -1,0 +1,157 @@
+\section{Proof of Spectral Realizability}
+
+\begin{proof}[Proof of Proposition~\ref{prop:realizability}]
+The residual of the population-optimal $M$-coordinate predictor is
+$Y-\sum_{j\le M}\theta_jX_j=\sum_{j>M}\theta_jX_j+\varepsilon$.
+Uncorrelatedness gives
+\[
+\E\left(Y-\sum_{j\le M}\theta_jX_j\right)^2
+=E+\sum_{j>M}\lambda_j\theta_j^2.
+\]
+Substituting $q_j=\sum_\ell w_\ell j^{-(1+\alpha_\ell)}$ and exchanging the finite $\ell$-sum with the convergent $j$-sum yields Eq.~\eqref{eq:mixture}. Finally, the integral test or one step of Euler--Maclaurin summation gives
+\[
+\sum_{j>M}j^{-(1+\alpha)}
+=\frac{M^{-\alpha}}{\alpha}+O(M^{-1-\alpha}).
+\]
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:exact-power}]
+The proposed predictive energies are nonnegative because $j\mapsto j^{-\alpha}$ decreases. They are summable, and their tail telescopes:
+\[
+ \sum_{j>M}A\{j^{-\alpha}-(j+1)^{-\alpha}\}
+ =A(M+1)^{-\alpha}.
+\]
+Substitution into Eq.~\eqref{eq:spectral-tail} proves the claim. Existence of an underlying regression problem is explicit: take independent standard-normal coordinates, set $\lambda_j=1$ and $\theta_j=\sqrt{q_j}$, and take independent noise with variance $E$. Since $\sum_jq_j<\infty$, the response series converges in $L^2$.
+\end{proof}
+
+\section{Proof of the Hidden-Crossover Theorem}
+
+We use the elementary tail bounds
+\begin{equation}
+ \frac{(M+1)^{-\gamma}}{\gamma}
+ \le \phi_\gamma(M)
+ \le \frac{M^{-\gamma}}{\gamma},
+ \qquad \gamma>0.
+ \label{eq:integral-bounds}
+\end{equation}
+They follow by comparing the decreasing function $x^{-1-\gamma}$ with its left and right integrals.
+
+\begin{proof}[Proof of Theorem~\ref{thm:hidden}]
+Because $\phi_\alpha(M)$ decreases in $M$,
+\[
+0\le\Risk_1(M)-\Risk_0(M)=B\phi_\alpha(M)
+\le B\phi_\alpha(M_{\min})=\eta
+\]
+throughout the pilot interval. The Gaussian laws share covariance $\sigma^2I_m$, hence
+\[
+\KL(P_0\|P_1)
+=\frac{1}{2\sigma^2}\sum_{i=1}^m
+\bigl(B\phi_\alpha(M_i)\bigr)^2
+\le\frac{m\eta^2}{2\sigma^2}.
+\]
+For $\eta=\sigma/(2\sqrt m)$ this is at most $1/8$, and Pinsker's inequality gives $\TV(P_0,P_1)\le1/4$.
+
+By Proposition~\ref{prop:realizability} and Eq.~\eqref{eq:exponent-functional},
+$\Risk_0(M)-E\sim(A/\beta)M^{-\beta}$, whereas
+$\Risk_1(M)-E\sim(B/\alpha)M^{-\alpha}$ because $\alpha<\beta$. Their exponent functionals are therefore separated by $\beta-\alpha$. The standard two-point reduction says that for any estimator of a scalar functional separated by $\Delta$,
+\[
+\max_k\E_k|\widehat\psi-\psi_k|
+\ge\frac{\Delta}{4}(1-\TV(P_0,P_1)).
+\]
+Substituting $\Delta=\beta-\alpha$ and $\TV\le1/4$ gives Eq.~\eqref{eq:exponent-lower}.
+
+For the relative-risk statement, Eq.~\eqref{eq:integral-bounds} yields
+\[
+\frac{B\phi_\alpha(M)}{A\phi_\beta(M)}
+\ge\frac{B\beta}{A\alpha}\frac{M^\beta}{(M+1)^\alpha},
+\]
+which proves Eq.~\eqref{eq:relative-divergence}.
+
+If $\Risk_1(M)-E\le\tau$, then $B\phi_\alpha(M)\le\tau$ and the lower bound in Eq.~\eqref{eq:integral-bounds} implies
+$M+1\ge(B/(\alpha\tau))^{1/\alpha}$. Conversely, choosing
+$M\ge(A/(\beta\tau))^{1/\beta}$ makes
+$A\phi_\beta(M)\le\tau$. This proves Eq.~\eqref{eq:compute-target} and the divergence of the ratio as $\tau\downarrow0$.
+\end{proof}
+
+\section{Proof of the Floor--Exponent Bound}
+
+\begin{lemma}
+\label{lem:H}
+Let $H(z)=1-(1+z)e^{-z}$. Then $H(z)\ge0$ for all $z\in\R$,
+\begin{equation}
+ H(z)\le\frac{z^2}{2}e^{|z|}
+ \label{eq:H-upper}
+\end{equation}
+for all $z$, and
+\begin{equation}
+ H(z)\ge\frac{z^2}{2}e^{-z}
+ \label{eq:H-lower}
+\end{equation}
+for $z\ge0$.
+\end{lemma}
+
+\begin{proof}
+Since $H(0)=0$ and $H'(z)=ze^{-z}$, zero is the global minimum. Also
+$H(z)=\int_0^z ue^{-u}\,du$. Taking absolute values and bounding
+$e^{-u}\le e^{|z|}$ along the integration segment gives Eq.~\eqref{eq:H-upper}. For $z\ge0$, use $e^{-u}\ge e^{-z}$ on $[0,z]$ to get Eq.~\eqref{eq:H-lower}.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:matched}]
+For $u\ge\alpha$, define
+\[
+ g_u(t)=E+S\left(1-\frac{\alpha}{u}\right)
+ +\frac{\alpha S}{u}e^{-ut}.
+\]
+Then $g_\alpha=f_0$, $g_\beta=f_1$, and
+\[
+\frac{\partial g_u(t)}{\partial u}
+=\frac{\alpha S}{u^2}\left[1-(1+ut)e^{-ut}\right]
+=\frac{\alpha S}{u^2}H(ut).
+\]
+Integrating from $\alpha$ to $\beta$ proves Eq.~\eqref{eq:gap-integral} and nonnegativity. For $|t|\le T$, Lemma~\ref{lem:H} gives
+\[
+ f_1(t)-f_0(t)
+\le\int_\alpha^\beta
+ \frac{\alpha S}{u^2}\frac{u^2t^2}{2}e^{|ut|}\,du
+\le\frac{\alpha S\delta}{2}e^{\bar\alpha T}T^2.
+\]
+For $t_\star\ge0$, the lower bound gives
+\[
+ f_1(t_\star)-f_0(t_\star)
+\ge\int_\alpha^\beta
+ \frac{\alpha S}{u^2}\frac{u^2t_\star^2}{2}e^{-ut_\star}\,du
+\ge\frac{\alpha S\delta}{2}e^{-\bar\alpha t_\star}t_\star^2.
+\]
+
+Let $d_i=f_1(t_i)-f_0(t_i)$. Under Eq.~\eqref{eq:delta-choice}, the pilot upper bound implies $|d_i|\le\sigma/(2\sqrt m)$. Therefore
+\[
+\KL(P_0\|P_1)=\frac{1}{2\sigma^2}\sum_i d_i^2\le\frac18,
+\]
+and $\TV(P_0,P_1)\le1/4$. Applying the two-point inequality to the target functional, whose separation is at least Eq.~\eqref{eq:target-gap}, yields Eq.~\eqref{eq:target-lower}. Applying it to the exponent functional gives $3\delta/16$.
+
+Finally, set $\delta=\delta_\star$ as defined after Theorem~\ref{thm:matched} and substitute it into Eq.~\eqref{eq:target-lower}. If $\bar\alpha T\le1$ and $\bar\alpha t_\star\le1$, then
+$e^{-\bar\alpha(T+t_\star)}\ge e^{-2}$, yielding Eq.~\eqref{eq:horizon-ratio}.
+\end{proof}
+
+\section{Proof of Certificate Coverage}
+
+\begin{proof}[Proof of Theorem~\ref{thm:certificate}]
+For each $i$, Gaussianity and the definition of $z_\delta$ give
+\[
+\Pr\left(|\xi_i|>z_\delta s_i\right)=\frac{\delta}{m}.
+\]
+A union bound shows that all $m$ inequalities hold simultaneously with probability at least $1-\delta$. On this event the true coefficient vector $\theta^\star$ belongs to $\Cset_\delta$. Hence, for every target $M$,
+\[
+L_\delta(M)\le\Risk_{\theta^\star}(M)\le U_\delta(M).
+\]
+Because the same event and the same feasible coefficient vector apply to all $M$, coverage is simultaneous over any number of targets. Sharpness relative to $\Cset_\delta$ follows directly from minimizing and maximizing the linear target functional over that set.
+\end{proof}
+
+\section{Additional Experimental Details}
+
+The exact basis is evaluated with SciPy's Hurwitz-zeta implementation. The certificate uses the HiGHS linear-programming backend. All coefficients, including the floor, are constrained to be nonnegative. The calibration experiment uses integer pilot sizes approximately geometrically spaced from $32$ to $4096$, standard error $2\times10^{-4}$, true exponents $(0.25,0.80)$, weights $(2\times10^{-4},0.10)$, floor $0.20$, and dictionary
+$\{0.20,0.25,0.35,0.50,0.80,1.00\}$. The random seed is fixed in the released script.
+
+\section{Planned Extensions}
+
+The next proof and experimental milestones are: (i) a continuous-exponent certificate via discretization bounds or a semi-infinite program; (ii) correlated observation errors across scales; (iii) optimal pilot design under a fixed number of training runs; (iv) finite-sample ridge and SGD experiments; and (v) rolling-origin evaluation on public neural learning curves. These are not assumed by the theorems in the current draft.
