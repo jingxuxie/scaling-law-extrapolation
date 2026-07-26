@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: final-submission-assembly-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   apply:
     runs-on: ubuntu-latest
@@ -17,7 +21,7 @@ jobs:
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
-      - name: Assemble and apply verified patch
+      - name: Assemble and verify source patch
         shell: bash
         run: |
           set -euo pipefail
@@ -29,11 +33,18 @@ jobs:
           git apply --index /tmp/final.patch
           git rm -r .final-patch
           git rm .github/workflows/apply-final-patch.yml
+      - name: Publish assembled sources
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "paper: assemble final submission sources"
+          git push origin HEAD:${{ github.ref_name }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-      - name: Install and validate
+      - name: Install, test, and reproduce evidence
         env:
           SYNTHETIC_REPETITIONS: "30"
           BOOTSTRAP_REPETITIONS: "20"
@@ -48,10 +59,49 @@ jobs:
           pytest -q
           python experiments/run_all.py
           python experiments/run_submission.py --stage all
-      - name: Commit final package
+      - name: Compile manuscript, supplement, and checklist
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: |
+            main.tex
+            supplement.tex
+            checklist.tex
+          working_directory: paper
+          work_in_root_file_dir: true
+          texlive_version: 2025
+        env:
+          TEXINPUTS: ".:../AAAI_AuthorKit27//:"
+          BSTINPUTS: ".:../AAAI_AuthorKit27//:"
+      - name: PDF and log preflight
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "paper: finalize submission package"
-          git push origin HEAD:${{ github.ref_name }}
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils
+          pages=$(pdfinfo paper/main.pdf | awk '/Pages/{print $2}')
+          test "$pages" -le 7
+          for file in paper/main.pdf paper/supplement.pdf paper/checklist.pdf; do
+            if pdffonts "$file" | grep -q 'Type 3'; then
+              echo "Type-3 font detected in $file"
+              exit 1
+            fi
+          done
+          ! grep -Eq 'Overfull|undefined references|Citation.*undefined|Reference.*undefined' \
+            paper/main.log paper/supplement.log paper/checklist.log
+      - name: Publish generated evidence
+        run: |
+          git add results/*.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "experiments: record final submission evidence"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+      - name: Upload validated submission package
+        uses: actions/upload-artifact@v4
+        with:
+          name: validated-submission-package
+          path: |
+            paper/main.pdf
+            paper/supplement.pdf
+            paper/checklist.pdf
+            paper/figures/*.pdf
+            results/*.csv
+          if-no-files-found: error
+          retention-days: 14
