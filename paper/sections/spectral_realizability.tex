@@ -1,0 +1,47 @@
+\section{Exact Spectral Scaling Curves}
+
+Consider square-integrable, uncorrelated coordinates $X_j$ with $\E X_j=0$ and $\E X_j^2=\lambda_j$. Let
+\begin{equation}
+ Y=\sum_{j\ge1}\theta_jX_j+\varepsilon,
+ \qquad \E\varepsilon^2=E,
+ \label{eq:linreg}
+\end{equation}
+where $\varepsilon$ is uncorrelated with the covariates and $\sum_j\lambda_j\theta_j^2<\infty$. The population-optimal predictor restricted to the first $M$ coordinates has risk
+\begin{equation}
+ \Risk(M)=E+\sum_{j>M}q_j,
+ \qquad q_j:=\lambda_j\theta_j^2.
+ \label{eq:spectral-tail}
+\end{equation}
+Define
+\begin{equation}
+ \phi_\alpha(M):=\sum_{j>M}j^{-(1+\alpha)}
+ =\zeta(1+\alpha,M+1).
+ \label{eq:basis}
+\end{equation}
+
+\begin{proposition}[Spectral realizability]
+\label{prop:realizability}
+For exponents $\alpha_1,\ldots,\alpha_L>0$ and weights $w_1,\ldots,w_L\ge0$, choose
+$q_j=\sum_{\ell=1}^Lw_\ell j^{-(1+\alpha_\ell)}$. Then the exact population risk is
+\begin{equation}
+ \Risk(M)=E+\sum_{\ell=1}^Lw_\ell\phi_{\alpha_\ell}(M).
+ \label{eq:mixture}
+\end{equation}
+Moreover,
+$\phi_\alpha(M)=\alpha^{-1}M^{-\alpha}+O(M^{-1-\alpha})$.
+\end{proposition}
+
+\begin{corollary}[Exact powers are realizable]
+\label{cor:exact-power}
+For any $A,\alpha>0$, choosing
+$q_j=A\{j^{-\alpha}-(j+1)^{-\alpha}\}$ gives
+\begin{equation}
+ \Risk(M)=E+A(M+1)^{-\alpha}
+ \label{eq:exact-power}
+\end{equation}
+exactly for every integer $M\ge0$. Thus, after centering
+$t=\log((M+1)/(M_0+1))$, every floor-plus-power curve used below is an exact population-risk curve of a linear-regression problem.
+\end{corollary}
+
+Thus a single power law corresponds to one spectral population, while a crossover corresponds to multiple populations with different decay exponents. Positivity is not an arbitrary regularizer: each $w_\ell$ represents nonnegative predictive energy.
+

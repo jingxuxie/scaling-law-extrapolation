@@ -1,0 +1,25 @@
+\begin{abstract}
+Scaling laws are routinely fit to small models or datasets and extrapolated to substantially larger resource budgets. Yet an excellent in-range fit need not identify the irreducible floor, the asymptotic exponent, or even the next scaling regime. We formalize this ambiguity in a solvable family of infinite-dimensional linear-regression problems. First, we show that positive mixtures of power-law target spectra generate exact population-risk curves expressed by Hurwitz-zeta tails. We then prove two complementary impossibility results. A hidden spectral component can remain below the noise throughout any finite pilot range while changing the asymptotic exponent and making compute-to-target predictions differ by an arbitrarily large factor. Even within the conventional floor-plus-power family, two curves can match both value and slope at the center of the pilot range; a minimax lower bound shows that target-scale uncertainty grows quadratically with the ratio between the extrapolation horizon and the observed log-scale span. Motivated by these limits, we introduce \ScaleCert, a linear-programming procedure that returns the sharp range of target losses compatible with simultaneous observation bands and a positive spectral dictionary, abstaining when extrapolation is not identified. The interval has finite-sample simultaneous coverage under the stated model class. Exact-risk simulations verify the constructions and show conservative calibration of the certificate. Our results separate goodness of fit from extrapolation validity and quantify why broader scale coverage can be more valuable than repeated runs at nearly identical scales.
+\end{abstract}
+
+\section{Introduction}
+
+Scaling laws summarize how predictive performance changes with model size, data, or compute. They have informed large-model design, data allocation, and compute-optimal training \citep{hestness2017deep,kaplan2020scaling,hoffmann2022empirical}. A common workflow is to train a collection of relatively small systems, fit a curve such as
+\begin{equation}
+  \Risk(M)=E+A M^{-\alpha},
+  \label{eq:standard-law}
+\end{equation}
+and extrapolate to a target scale far outside the pilot range. The fitted curve can have tiny residual error and still be unreliable: the floor $E$ and exponent $\alpha$ are strongly confounded over a short log-scale interval, while a weak, slowly decaying component can be invisible at pilot scales and dominate later.
+
+Flexible empirical forms, including broken power laws, improve average fit when the relevant transition is represented in the observed data \citep{caballero2022broken}. Bayesian extrapolators quantify uncertainty conditional on a prior over curves \citep{adriaensen2023efficient,lee2025bayesian}. These approaches are useful, but they do not answer a more basic question: \emph{what can any method identify from a finite pilot range under transparent structural assumptions?} Recent evidence that downstream scaling is predictable only in a subset of settings makes this question practically important \citep{lourie2025unreliable}.
+
+We study identifiability in a linear-regression model where scaling curves are exact and inexpensive to evaluate. The setting is deliberately simple enough to expose the obstruction rather than hide it inside optimization noise. Power-law covariance and source conditions already yield neural-like model, data, and training-time scaling laws in linear and random-feature models \citep{lin2024scaling,bordelon2024dynamical,lin2025improved}. We use the same spectral language to construct observationally indistinguishable learning problems.
+
+Our contributions are:
+\begin{itemize}
+    \item We give an exact \emph{spectral realizability} result: every positive finite mixture of Hurwitz-zeta power-law tails is the population risk of a truncated linear-regression problem.
+    \item We prove a \emph{hidden-crossover lower bound}. For any finite pilot interval, two spectrally realizable problems can have small Gaussian statistical distance on all pilot observations while possessing different asymptotic exponents. Their required model sizes for attaining a small excess-risk target differ by an unbounded factor.
+    \item We prove a quantitative \emph{floor--exponent confounding bound} inside the standard family in Eq.~\eqref{eq:standard-law}. Curves that match value and slope reveal their difference only through curvature, producing a $T^{-2}$ local identifiability barrier when the observed half log-span is $T$.
+    \item We introduce \ScaleCert, a set-valued extrapolator computed by two linear programs. It returns an honest interval, a target-achievability decision, or an abstention under a stated positive spectral dictionary.
+\end{itemize}
+
