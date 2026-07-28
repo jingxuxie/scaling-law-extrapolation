@@ -25,10 +25,24 @@ if str(SRC) not in sys.path:
 import matplotlib
 
 matplotlib.use("Agg")
-matplotlib.rcParams["pdf.fonttype"] = 42
-matplotlib.rcParams["ps.fonttype"] = 42
+matplotlib.rcParams.update(
+    {
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "font.size": 15,
+        "axes.titlesize": 16,
+        "axes.labelsize": 15,
+        "xtick.labelsize": 13,
+        "ytick.labelsize": 13,
+        "legend.fontsize": 13,
+        "legend.frameon": False,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+    }
+)
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.lines import Line2D
 
 from scaling_extrapolation import (
     continuous_cell_matrices,
@@ -129,15 +143,28 @@ def continuous_refinement() -> None:
     widths = np.asarray([float(row["max_grid_width"]) for row in rows])
     slacks = np.asarray([float(row["max_target_secant_slack_per_unit_mass"]) for row in rows])
     interval_widths = np.asarray([float(row["width"]) for row in rows])
-    fig, ax = plt.subplots(figsize=(6.4, 3.8))
-    ax.loglog(widths, slacks, "o-", label="curvature slack")
+    fig, ax = plt.subplots(figsize=(5.2, 3.0))
+    ax.loglog(widths, slacks, "o-", label="secant slack per unit mass")
     ax.loglog(widths, interval_widths, "s--", label="certificate width")
-    ax.loglog(widths, slacks[0] * (widths / widths[0]) ** 2, ":", label=r"quadratic reference")
+    ax.loglog(
+        widths,
+        slacks[0] * (widths / widths[0]) ** 2,
+        ":",
+        label="quadratic",
+    )
     ax.set_xlabel("maximum exponent-cell width")
-    ax.set_ylabel("target-scale magnitude")
-    ax.set_title("Continuous-exponent correction vanishes quadratically")
-    ax.legend()
-    fig.tight_layout()
+    ax.set_ylabel("correction or interval width")
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.99),
+        ncol=2,
+        columnspacing=0.8,
+        handlelength=1.5,
+    )
+    fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.78))
     fig.savefig(FIGURES / "continuous_refinement.pdf")
     fig.savefig(FIGURES / "continuous_refinement.png", dpi=180)
     plt.close(fig)
@@ -187,24 +214,54 @@ def finite_sample_ols() -> None:
         )
     write_csv(RESULTS / "finite_sample_ols.csv", rows)
 
-    fig, ax = plt.subplots(figsize=(6.4, 3.8))
-    ax.plot(dimensions, oracle, "o-", label="population truncation risk")
-    ax.plot(dimensions, summary.mean_trained_risk, "s--", label="finite-sample OLS")
+    fig, ax = plt.subplots(figsize=(5.2, 3.0))
+    ax.plot(dimensions, oracle, "o-", label="population risk")
+    ax.plot(
+        dimensions,
+        summary.mean_trained_risk,
+        "s--",
+        label="mean finite-sample OLS",
+    )
     ax.errorbar(
         dimensions,
         summary.debiased_mean,
         yerr=summary.debiased_standard_error,
         fmt="^:",
         capsize=2,
-        label="debiased OLS mean",
+        label="debiased OLS",
     )
-    ax.axvline(96, linestyle=":", label="last pilot dimension")
+    ax.axvline(96, linestyle=":", label=r"last pilot ($M=96$)")
+    target_index = int(np.flatnonzero(dimensions == target_dimension)[0])
+    target_oracle = float(summary.oracle_risk[target_index])
+    ax.errorbar(
+        [target_dimension],
+        [target_oracle],
+        yerr=[
+            [target_oracle - interval.lower],
+            [interval.upper - target_oracle],
+        ],
+        fmt="D",
+        color="black",
+        markerfacecolor="white",
+        capsize=5,
+        elinewidth=1.5,
+        zorder=5,
+        label=r"SCALE-CERT at $M=256$",
+    )
     ax.set_xscale("log")
     ax.set_xlabel("retained dimension")
     ax.set_ylabel("population test risk")
-    ax.set_title("Exact OLS debiasing recovers the spectral curve")
-    ax.legend()
-    fig.tight_layout()
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.99),
+        ncol=2,
+        columnspacing=0.8,
+        handlelength=1.5,
+    )
+    fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.72))
     fig.savefig(FIGURES / "finite_sample_ols.pdf")
     fig.savefig(FIGURES / "finite_sample_ols.png", dpi=180)
     plt.close(fig)
@@ -313,20 +370,62 @@ def synthetic_benchmark() -> None:
     plotted = [row for row in summaries if row["coverage"] != ""]
     fig, ax = plt.subplots(figsize=(6.6, 4.0))
     markers = {"single_power": "o", "hidden_crossover": "s", "three_component": "^"}
+    family_labels = {
+        "single_power": "one power",
+        "hidden_crossover": "hidden crossover",
+        "three_component": "three components",
+    }
+    method_labels = {
+        "continuous_cert_broad": "broad certificate",
+        "continuous_cert_narrow": "narrow certificate",
+        "one_power_bootstrap": "bootstrap",
+        "one_power_laplace": "Laplace",
+    }
+    method_colors = {
+        method: f"C{index}"
+        for index, method in enumerate(method_labels)
+    }
     for row in plotted:
+        family = str(row["family"])
+        method = str(row["method"])
         ax.scatter(
             float(row["median_width"]),
             float(row["coverage"]),
-            marker=markers[str(row["family"])],
-            label=f"{row['family']} / {row['method']}",
+            marker=markers[family],
+            color=method_colors[method],
         )
-    ax.axhline(0.90, linestyle=":", label="nominal 90%")
+    ax.axhline(0.90, color="0.35", linestyle=":")
     ax.set_xscale("log")
     ax.set_xlabel("median interval width")
     ax.set_ylabel("target coverage")
     ax.set_ylim(-0.02, 1.05)
     ax.set_title("Coverage--informativeness tradeoff")
-    ax.legend(fontsize=6, ncol=2)
+    legend_handles = [
+        Line2D(
+            [],
+            [],
+            color="black",
+            marker=markers[family],
+            linestyle="None",
+            label=label,
+        )
+        for family, label in family_labels.items()
+    ]
+    legend_handles.extend(
+        Line2D(
+            [],
+            [],
+            color=color,
+            marker="o",
+            linestyle="None",
+            label=method_labels[method],
+        )
+        for method, color in method_colors.items()
+    )
+    legend_handles.append(
+        Line2D([], [], color="0.35", linestyle=":", label="nominal 90%")
+    )
+    ax.legend(handles=legend_handles, fontsize=11, ncol=2, loc="lower left")
     fig.tight_layout()
     fig.savefig(FIGURES / "synthetic_coverage_width.pdf")
     fig.savefig(FIGURES / "synthetic_coverage_width.png", dpi=180)
@@ -496,7 +595,7 @@ def public_benchmark() -> None:
     ax.set_ylim(-0.02, 1.05)
     ax.axhline(0.90, linestyle=":", label="90% reference")
     ax.set_title("Public curves: mismatch sensitivity frontier")
-    ax.legend(fontsize=7, ncol=2)
+    ax.legend(fontsize=11, ncol=2)
     fig.tight_layout()
     fig.savefig(FIGURES / "public_coverage_width.pdf")
     fig.savefig(FIGURES / "public_coverage_width.png", dpi=180)

@@ -99,23 +99,23 @@ For the relative-risk statement, Eq.~\eqref{eq:integral-bounds} yields
 \]
 which proves Eq.~\eqref{eq:relative-divergence}.
 
-If $\Risk_1(M)-E\le\tau$, then $B\phi_\alpha(M)\le\tau$ and the lower bound in Eq.~\eqref{eq:integral-bounds} implies
-$M+1\ge(B/(\alpha\tau))^{1/\alpha}$. Conversely, choosing
-$M\ge(A/(\beta\tau))^{1/\beta}$ makes
-$A\phi_\beta(M)\le\tau$. This proves Eq.~\eqref{eq:compute-target} and the divergence of the ratio as $\tau\downarrow0$.
+If $\Risk_1(M)-E\le\epsilon$, then $B\phi_\alpha(M)\le\epsilon$ and the lower bound in Eq.~\eqref{eq:integral-bounds} implies
+$M+1\ge(B/(\alpha\epsilon))^{1/\alpha}$. Conversely, for sufficiently small $\epsilon$, choosing
+$M\ge(A/(\beta\epsilon))^{1/\beta}$ also ensures $M\ge M_{\max}$ and makes $A\phi_\beta(M)\le\epsilon$. This proves Eq.~\eqref{eq:compute-target} and the divergence of the ratio as $\epsilon\downarrow0$.
 \end{proof}
 
 \begin{proof}[Proof of Corollary~\ref{cor:compute-minimax}]
 The pilot distributions are the same pair used in Theorem~\ref{thm:hidden}, so their total-variation distance is at most $1/4$. Applying the scalar two-point inequality to the functional
-$\ell_k(\tau)=\log C_k(\tau)$ gives Eq.~\eqref{eq:compute-minimax}.
-Moreover, Eq.~\eqref{eq:compute-target} yields, for sufficiently small $\tau$,
+$\ell_k(\epsilon)=\log C_k^{\mathrm{ex}}(\epsilon)$ gives Eq.~\eqref{eq:compute-minimax}.
+Moreover, Eq.~\eqref{eq:compute-target} yields, for sufficiently small $\epsilon$,
 \begin{align*}
- \log\frac{C_1(\tau)}{C_0(\tau)}
+ \log\frac{C_1^{\mathrm{ex}}(\epsilon)}
+ {C_0^{\mathrm{ex}}(\epsilon)}
  &\ge \log\left\{
- \frac{(B/(\alpha\tau))^{1/\alpha}-1}
- {\lceil(A/(\beta\tau))^{1/\beta}\rceil}
+ \frac{(B/(\alpha\epsilon))^{1/\alpha}-1}
+ {\lceil(A/(\beta\epsilon))^{1/\beta}\rceil}
  \right\}\\
- &=\left(\frac1\alpha-\frac1\beta\right)\log\frac1\tau+O(1).
+ &=\left(\frac1\alpha-\frac1\beta\right)\log\frac1\epsilon+O(1).
 \end{align*}
 Because $\alpha<\beta$, the coefficient is positive and the lower bound diverges.
 \end{proof}
@@ -281,19 +281,30 @@ when $\mu$ has total mass at most $W$. Thus the true curve and its secant repres
 
 \begin{proof}[Proof of Corollary~\ref{cor:compute-certificate}]
 Work on the simultaneous coverage event. Since
-$\widetilde L_\delta(M)\le\Risk(M)$ for every $M$,
-\[
- \{M:\Risk(M)\le\tau\}
- \subseteq \{M:\widetilde L_\delta(M)\le\tau\}.
-\]
+$\widetilde L^{\mathrm{ex}}_\delta(M)
+\le\Risk(M)-E_{\Risk}$ for every $M$,
+\begin{align*}
+ &\{M\ge M_{\max}:\Risk(M)-E_{\Risk}\le\epsilon\}\\
+ &\quad\subseteq
+ \{M\ge M_{\max}:
+ \widetilde L^{\mathrm{ex}}_\delta(M)\le\epsilon\}.
+\end{align*}
 Taking infima gives
-$\underline C_\delta(\tau)\le C_{\Risk}(\tau)$.
-Likewise, $\Risk(M)\le\widetilde U_\delta(M)$ implies
-\[
- \{M:\widetilde U_\delta(M)\le\tau\}
- \subseteq \{M:\Risk(M)\le\tau\},
-\]
-so $C_{\Risk}(\tau)\le\overline C_\delta(\tau)$. The same coverage event holds for all $M$, and therefore the conclusion holds for all thresholds simultaneously. The convention $\inf\varnothing=\infty$ covers unattained thresholds.
+$\underline C^{\mathrm{ex}}_\delta(\epsilon)
+\le C^{\mathrm{ex}}_{\Risk}(\epsilon)$.
+Likewise,
+$\Risk(M)-E_{\Risk}
+\le\widetilde U^{\mathrm{ex}}_\delta(M)$ implies
+\begin{align*}
+ &\{M\ge M_{\max}:
+ \widetilde U^{\mathrm{ex}}_\delta(M)\le\epsilon\}\\
+ &\quad\subseteq
+ \{M\ge M_{\max}:\Risk(M)-E_{\Risk}\le\epsilon\},
+\end{align*}
+so
+$C^{\mathrm{ex}}_{\Risk}(\epsilon)
+\le\overline C^{\mathrm{ex}}_\delta(\epsilon)$.
+The same coverage event holds for all $M$, and therefore the conclusion holds for all excess-risk thresholds simultaneously. The convention $\inf\varnothing=\infty$ covers unattained thresholds.
 \end{proof}
 
 \section{Proof of the Finite-Sample OLS Bridge}
@@ -365,5 +376,3 @@ We use the NSL-PFN data at repository revision
 \paragraph{Reproducibility.}
 The submission pipeline runs every stage in a fresh process through
 \texttt{experiments/run\_submission.py}. Machine-readable outputs include per-run predictions and aggregate tables. All experiments are CPU-only; CI uses Ubuntu and Python~3.11 with the package ranges in \texttt{pyproject.toml}. Random experiments use fixed numerical seeds, and public-curve seeds are derived from SHA-256 identifiers rather than process-dependent hashes. GitHub Actions executes the unit tests, exact-risk script, all submission stages, and the manuscript build.
-
-

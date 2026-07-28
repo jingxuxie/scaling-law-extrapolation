@@ -75,7 +75,7 @@ The conclusion holds for arbitrary off-grid exponents. If the true measure has t
 $W\max_\ell\varepsilon_\ell(M)=O(W\Delta_{\max}^2)$.
 \end{theorem}
 
-An empty set rejects the declared class at the chosen tolerance. An unbounded upper LP is an honest abstention. For a loss target $\tau$, success is certified when $\widetilde U_\delta(M_\star)\le\tau$, failure when $\widetilde L_\delta(M_\star)>\tau$, and otherwise remains unidentified. Bounded structural mismatch is included by expanding each pilot band by a declared radius $\rho_i$.
+An empty set rejects the declared class at the chosen tolerance. An unbounded upper LP is an honest abstention. Since the first coordinate of $\vartheta$ is the floor $E$, the same LPs with objectives $(D_M-G_M)\vartheta-E$ and $D_M\vartheta-E$ define excess-risk bounds $\widetilde L^{\mathrm{ex}}_\delta(M)$ and $\widetilde U^{\mathrm{ex}}_\delta(M)$. They simultaneously cover $\Risk(M)-E_{\Risk}$. Thus an excess-risk target $\epsilon$ is certified as reached when $\widetilde U^{\mathrm{ex}}_\delta(M_\star)\le\epsilon$, not reached when $\widetilde L^{\mathrm{ex}}_\delta(M_\star)>\epsilon$, and otherwise remains unidentified. Bounded mismatch is handled by expanding each pilot band by a declared radius $\rho_i$.
 
 The same risk envelope certifies a resource requirement rather than only a loss at one chosen scale.
 
@@ -83,18 +83,22 @@ The same risk envelope certifies a resource requirement rather than only a loss 
 \label{cor:compute-certificate}
 On the simultaneous event in Theorem~\ref{thm:continuous-certificate}, define
 \begin{align}
- \underline C_\delta(\tau)&:=\inf\{M:\widetilde L_\delta(M)\le\tau\},\\
- \overline C_\delta(\tau)&:=\inf\{M:\widetilde U_\delta(M)\le\tau\}.
+ \underline C^{\mathrm{ex}}_\delta(\epsilon)
+ &:=\inf\{M\ge M_{\max}:
+ \widetilde L^{\mathrm{ex}}_\delta(M)\le\epsilon\},\\
+ \overline C^{\mathrm{ex}}_\delta(\epsilon)
+ &:=\inf\{M\ge M_{\max}:
+ \widetilde U^{\mathrm{ex}}_\delta(M)\le\epsilon\}.
  \label{eq:compute-certificate}
 \end{align}
-Then, for every threshold $\tau$ simultaneously,
+Then, for every excess-risk threshold $\epsilon>0$ simultaneously,
 \begin{equation}
- \underline C_\delta(\tau)
- \le C_{\Risk}(\tau)
- \le \overline C_\delta(\tau).
+ \underline C^{\mathrm{ex}}_\delta(\epsilon)
+ \le C^{\mathrm{ex}}_{\Risk}(\epsilon)
+ \le \overline C^{\mathrm{ex}}_\delta(\epsilon).
  \label{eq:compute-coverage}
 \end{equation}
-Either endpoint may be infinite. Thus an unbounded upper resource requirement records that the pilot data cannot guarantee the target loss under the declared class.
+Either endpoint may be infinite. Thus an unbounded upper resource requirement records that the pilot data cannot guarantee the target excess risk under the declared class.
 \end{corollary}
 
 \paragraph{Practical workflow.}

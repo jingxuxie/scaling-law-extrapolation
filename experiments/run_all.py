@@ -20,8 +20,21 @@ if str(SRC) not in sys.path:
 import matplotlib
 
 matplotlib.use("Agg")
-matplotlib.rcParams["pdf.fonttype"] = 42
-matplotlib.rcParams["ps.fonttype"] = 42
+matplotlib.rcParams.update(
+    {
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+        "font.size": 15,
+        "axes.titlesize": 16,
+        "axes.labelsize": 15,
+        "xtick.labelsize": 13,
+        "ytick.labelsize": 13,
+        "legend.fontsize": 13,
+        "legend.frameon": False,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+    }
+)
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import least_squares
@@ -101,9 +114,9 @@ def matched_floor_exponent_demo() -> None:
     ax.plot(np.exp(dense_t), alternative, linestyle="--", label="matched alternative")
     ax.axvspan(np.exp(-half_span), np.exp(half_span), alpha=0.12, label="pilot range")
     ax.set_xscale("log")
-    ax.set_xlabel(r"relative scale $M/M_0$")
+    ax.set_xlabel(r"relative scale $e^t$")
     ax.set_ylabel("risk")
-    ax.set_title("Value-and-slope matching hides floor--exponent ambiguity")
+    ax.set_title("Matched floor--exponent laws")
     ax.legend()
     fig.tight_layout()
     fig.savefig(FIGURE_DIR / "matched_floor_exponent.pdf")
@@ -242,8 +255,8 @@ def hidden_crossover_demo() -> None:
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("model size $M$")
-    ax.set_ylabel("reducible risk")
-    ax.set_title("A below-noise component changes the asymptotic exponent")
+    ax.set_ylabel("excess risk")
+    ax.set_title("Hidden spectral crossover")
     ax.legend()
     fig.tight_layout()
     fig.savefig(FIGURE_DIR / "hidden_crossover.pdf")
@@ -377,23 +390,37 @@ def certificate_coverage_demo(seed: int = 7, repetitions: int = 250) -> None:
         curve_targets, floor=floor, exponents=true_exponents, weights=true_weights
     )
 
-    fig, ax = plt.subplots(figsize=(6.8, 4.0))
+    fig, ax = plt.subplots(figsize=(5.2, 3.0))
     ax.errorbar(
         pilot_sizes,
         observations,
         yerr=se,
         fmt="o",
         capsize=2,
-        label="pilot observations",
+        label="pilots",
     )
     ax.plot(curve_targets, curve_truth, label="true risk")
-    ax.fill_between(curve_targets, curve_lower, curve_upper, alpha=0.2, label="SCALE-CERT")
+    ax.fill_between(
+        curve_targets,
+        curve_lower,
+        curve_upper,
+        alpha=0.2,
+        label="pointwise SCALE-CERT bounds",
+    )
     ax.set_xscale("log")
     ax.set_xlabel("model size $M$")
     ax.set_ylabel("risk")
-    ax.set_title("Set-valued extrapolation widens beyond the pilot range")
-    ax.legend()
-    fig.tight_layout()
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.99),
+        ncol=2,
+        columnspacing=0.8,
+        handlelength=1.5,
+    )
+    fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.78))
     fig.savefig(FIGURE_DIR / "certificate_demo.pdf")
     fig.savefig(FIGURE_DIR / "certificate_demo.png", dpi=180)
     plt.close(fig)

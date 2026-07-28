@@ -41,30 +41,35 @@ which diverges as $M^{\beta-\alpha}$.
 
 The theorem holds even if the floor is known. It says that no amount of in-range goodness of fit identifies an unseen slower component without a structural restriction excluding it.
 
-A decision consequence is especially severe. Define
-$C_k(\tau)=\min\{M:\Risk_k(M)-E\le\tau\}$. Integral bounds on $\phi_\alpha$ imply
+A decision consequence is especially severe. Write
+$C_k^{\mathrm{ex}}(\epsilon):=C_{\Risk_k}^{\mathrm{ex}}(\epsilon)$. For all sufficiently small $\epsilon$, integral bounds on $\phi_\alpha$ imply
 \begin{align}
- C_1(\tau)&\ge \left(\frac{B}{\alpha\tau}\right)^{1/\alpha}-1,\\
- C_0(\tau)&\le \left\lceil\left(\frac{A}{\beta\tau}\right)^{1/\beta}\right\rceil.
+ C_1^{\mathrm{ex}}(\epsilon)
+ &\ge \left(\frac{B}{\alpha\epsilon}\right)^{1/\alpha}-1,\\
+ C_0^{\mathrm{ex}}(\epsilon)
+ &\le \left\lceil
+ \left(\frac{A}{\beta\epsilon}\right)^{1/\beta}\right\rceil.
  \label{eq:compute-target}
 \end{align}
-Their ratio is unbounded as $\tau\downarrow0$. Hence a below-noise component can have little effect on the next measured loss while changing the resource budget required for a demanding target by orders of magnitude.
+Their ratio is unbounded as $\epsilon\downarrow0$. Hence a below-noise component can have little effect on the next measured loss while changing the resource budget required for a demanding target by orders of magnitude.
 
 \begin{corollary}[Unbounded compute-to-target estimation risk]
 \label{cor:compute-minimax}
 Use the statistically indistinguishable pair in Theorem~\ref{thm:hidden} with
-$\eta=\sigma/(2\sqrt m)$. For any estimator $\widehat\ell_\tau$ of
-$\ell_k(\tau)=\log C_k(\tau)$,
+$\eta=\sigma/(2\sqrt m)$. For any estimator $\widehat\ell_\epsilon$ of
+$\ell_k(\epsilon)=\log C_k^{\mathrm{ex}}(\epsilon)$,
 \begin{equation}
  \max_{k\in\{0,1\}}\E_k
- |\widehat\ell_\tau-\ell_k(\tau)|
- \ge \frac{3}{16}\left|\log\frac{C_1(\tau)}{C_0(\tau)}\right|.
+ |\widehat\ell_\epsilon-\ell_k(\epsilon)|
+ \ge \frac{3}{16}\left|\log
+ \frac{C_1^{\mathrm{ex}}(\epsilon)}
+ {C_0^{\mathrm{ex}}(\epsilon)}\right|.
  \label{eq:compute-minimax}
 \end{equation}
-For all sufficiently small $\tau$, Eqs.~\eqref{eq:compute-target} imply that the right-hand side grows at least as
+For all sufficiently small $\epsilon$, Eqs.~\eqref{eq:compute-target} imply that the right-hand side grows at least as
 \begin{equation}
  \frac{3}{16}\left(\frac1\alpha-\frac1\beta\right)
- \log\frac1\tau+O(1).
+ \log\frac1\epsilon+O(1).
  \label{eq:compute-log-rate}
 \end{equation}
 Thus the minimax error in predicting the logarithm of the required resource is unbounded even though the pilot KL divergence remains at most $1/8$.
@@ -169,4 +174,3 @@ Let $H(z)=1-(1+z)e^{-z}$. The gap in Eq.~\eqref{eq:matched-pair} admits the exac
  \label{eq:gap-integral}
 \end{equation}
 Since $0\le H(z)\le e^{|z|}z^2/2$ and $H(z)\ge e^{-z}z^2/2$ for $z\ge0$, Eqs.~\eqref{eq:observed-gap}--\eqref{eq:target-gap} follow. Equation~\eqref{eq:delta-choice} makes the Gaussian KL divergence at most $1/8$; Le Cam's two-point method completes the proof. Full details are in the supplement.
-
