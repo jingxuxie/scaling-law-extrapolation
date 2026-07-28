@@ -3,6 +3,8 @@ name: Export complete package
 on:
   push:
     branches: [agent/package-export-20260727]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
