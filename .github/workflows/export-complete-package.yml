@@ -1,0 +1,22 @@
+name: Export complete package
+
+on:
+  push:
+    branches: [agent/package-export-20260727]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload complete repository snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: scaling-law-extrapolation-complete-package
+          path: .
+          include-hidden-files: true
+          retention-days: 1
