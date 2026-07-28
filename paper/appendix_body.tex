@@ -15,6 +15,38 @@ Substituting $q_j=\sum_\ell w_\ell j^{-(1+\alpha_\ell)}$ and exchanging the fini
 \]
 \end{proof}
 
+\begin{proof}[Proof of Proposition~\ref{prop:slowest-support}]
+Write $Q(M)=\Risk_{E,\mu}(M)-E$ and let the support of $\mu$ lie in
+$[\alpha_{\min},\alpha_{\max}]\subset(0,\infty)$. The integral comparison
+\[
+ \phi_\alpha(M)\le \int_M^\infty x^{-1-\alpha}\,dx
+ =\frac{M^{-\alpha}}{\alpha}
+\]
+implies
+\[
+ Q(M)\le \frac{\mu([\alpha_{\min},\alpha_{\max}])}{\alpha_{\min}}
+ M^{-\alpha_0}.
+\]
+Therefore
+$\liminf_{M\to\infty}-\log Q(M)/\log M\ge\alpha_0$.
+
+For the converse, fix $\epsilon>0$. Since $\alpha_0$ is the infimum of the support,
+$c_\epsilon:=\mu([\alpha_0,\alpha_0+\epsilon])>0$. For
+$\alpha\le\alpha_0+\epsilon$, the lower integral comparison gives
+\[
+ \phi_\alpha(M)\ge \int_{M+1}^\infty x^{-1-\alpha}\,dx
+ \ge \frac{(M+1)^{-(\alpha_0+\epsilon)}}{\alpha_{\max}}.
+\]
+Hence
+\[
+ Q(M)\ge \frac{c_\epsilon}{\alpha_{\max}}
+ (M+1)^{-(\alpha_0+\epsilon)},
+\]
+so
+$\limsup_{M\to\infty}-\log Q(M)/\log M\le\alpha_0+\epsilon$.
+Letting $\epsilon\downarrow0$ proves Eq.~\eqref{eq:slowest-support}. The argument uses positive mass in every neighborhood of $\alpha_0$, not an atom at that point, which explains the final statement.
+\end{proof}
+
 \begin{proof}[Proof of Corollary~\ref{cor:exact-power}]
 The proposed predictive energies are nonnegative because $j\mapsto j^{-\alpha}$ decreases. They are summable, and their tail telescopes:
 \[
@@ -71,6 +103,21 @@ If $\Risk_1(M)-E\le\tau$, then $B\phi_\alpha(M)\le\tau$ and the lower bound in E
 $M+1\ge(B/(\alpha\tau))^{1/\alpha}$. Conversely, choosing
 $M\ge(A/(\beta\tau))^{1/\beta}$ makes
 $A\phi_\beta(M)\le\tau$. This proves Eq.~\eqref{eq:compute-target} and the divergence of the ratio as $\tau\downarrow0$.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:compute-minimax}]
+The pilot distributions are the same pair used in Theorem~\ref{thm:hidden}, so their total-variation distance is at most $1/4$. Applying the scalar two-point inequality to the functional
+$\ell_k(\tau)=\log C_k(\tau)$ gives Eq.~\eqref{eq:compute-minimax}.
+Moreover, Eq.~\eqref{eq:compute-target} yields, for sufficiently small $\tau$,
+\begin{align*}
+ \log\frac{C_1(\tau)}{C_0(\tau)}
+ &\ge \log\left\{
+ \frac{(B/(\alpha\tau))^{1/\alpha}-1}
+ {\lceil(A/(\beta\tau))^{1/\beta}\rceil}
+ \right\}\\
+ &=\left(\frac1\alpha-\frac1\beta\right)\log\frac1\tau+O(1).
+\end{align*}
+Because $\alpha<\beta$, the coefficient is positive and the lower bound diverges.
 \end{proof}
 
 \section{Proof of the Floor--Exponent Bound}
@@ -131,6 +178,35 @@ and $\TV(P_0,P_1)\le1/4$. Applying the two-point inequality to the target functi
 
 Finally, set $\delta=\delta_\star$ as defined after Theorem~\ref{thm:matched} and substitute it into Eq.~\eqref{eq:target-lower}. If $\bar\alpha T\le1$ and $\bar\alpha t_\star\le1$, then
 $e^{-\bar\alpha(T+t_\star)}\ge e^{-2}$, yielding Eq.~\eqref{eq:horizon-ratio}.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:design-span}]
+The pointwise bound used in Theorem~\ref{thm:matched} gives
+\[
+ |d_i|\le \frac{\alpha S\delta}{2}e^{\bar\alpha T}t_i^2,
+ \qquad d_i=f_1(t_i)-f_0(t_i).
+\]
+Consequently,
+\begin{align*}
+ \KL(P_0\|P_1)
+ &=\frac{1}{2\sigma^2}\sum_{i=1}^m d_i^2\\
+ &\le \frac{\alpha^2S^2\delta^2e^{2\bar\alpha T}}
+ {8\sigma^2}\sum_{i=1}^m t_i^4\\
+ &=\frac{m\alpha^2S^2\delta^2e^{2\bar\alpha T}}
+ {8\sigma^2}T_{\mathrm{eff}}^4.
+\end{align*}
+Equation~\eqref{eq:design-delta} makes this at most $1/8$. Pinsker's inequality and the same two-point reduction as before therefore give Eq.~\eqref{eq:target-lower}. Choosing equality in Eq.~\eqref{eq:design-delta} and substituting into the target separation yields
+\[
+ \max_k\E_k|\widehat f_\star-f_k(t_\star)|
+ \ge \frac{3\sigma}{32\sqrt m}
+ e^{-\bar\alpha(T+t_\star)}
+ \left(\frac{t_\star}{T_{\mathrm{eff}}}\right)^2.
+\]
+The local conditions lower-bound the exponential factor by $e^{-2}$, proving Eq.~\eqref{eq:design-lower}. If $T_{\mathrm{eff}}=0$, every $t_i=0$ and value-and-slope matching gives $d_i=0$ exactly.
+
+Finally, a necessary condition for the displayed lower bound to be at most $\epsilon$ is
+$t_\star\le T_{\mathrm{eff}}\sqrt{32e^2\epsilon\sqrt m/(3\sigma)}$.
+Substituting $t_\star=T+h$ proves Eq.~\eqref{eq:safe-horizon}.
 \end{proof}
 
 \section{Proof of Certificate Coverage}
@@ -203,6 +279,23 @@ G_M\vartheta
 when $\mu$ has total mass at most $W$. Thus the true curve and its secant representation differ by at most this amount. Since each $\varepsilon_\ell(M)$ is quadratic in $\Delta_\ell$, the stated discretization rate follows.
 \end{proof}
 
+\begin{proof}[Proof of Corollary~\ref{cor:compute-certificate}]
+Work on the simultaneous coverage event. Since
+$\widetilde L_\delta(M)\le\Risk(M)$ for every $M$,
+\[
+ \{M:\Risk(M)\le\tau\}
+ \subseteq \{M:\widetilde L_\delta(M)\le\tau\}.
+\]
+Taking infima gives
+$\underline C_\delta(\tau)\le C_{\Risk}(\tau)$.
+Likewise, $\Risk(M)\le\widetilde U_\delta(M)$ implies
+\[
+ \{M:\widetilde U_\delta(M)\le\tau\}
+ \subseteq \{M:\Risk(M)\le\tau\},
+\]
+so $C_{\Risk}(\tau)\le\overline C_\delta(\tau)$. The same coverage event holds for all $M$, and therefore the conclusion holds for all thresholds simultaneously. The convention $\inf\varnothing=\infty$ covers unattained thresholds.
+\end{proof}
+
 \section{Proof of the Finite-Sample OLS Bridge}
 
 \begin{proof}[Proof of Proposition~\ref{prop:ols}]
@@ -239,6 +332,10 @@ which proves Eq.~\eqref{eq:ols-distribution}.
 \paragraph{Exact constructions.}
 The zeta basis is evaluated with SciPy and all LPs use the HiGHS backend. The matched-pair and hidden-crossover settings are generated by \texttt{experiments/run\_all.py}. The latter also reproduces the compute-to-target ratios reported in the main text.
 
+\paragraph{Pilot placement.}
+The matched pair uses $E=0.20$, $S=0.08$, $(\alpha,\beta)=(0.35,0.55)$, nine observations, $T=0.5$, and standard error $0.005$. The centered design is equally spaced on $[-0.1,0.1]$, the uniform design on $[-0.5,0.5]$, and the endpoint-heavy design has four repetitions at each endpoint and one at zero. For two Gaussian mean vectors with common covariance $\sigma^2I$, the equal-prior Bayes error is
+$\Phi(-\sqrt{2\KL}/2)$. The exact values in Table~\ref{tab:design} are generated by \texttt{experiments/run\_all.py}.
+
 \paragraph{Continuous refinement.}
 The off-grid curve has floor $0.18$, exponents $(0.337,0.873)$, weights $(0.004,0.12)$, ten integer pilot sizes geometrically spaced from $16$ to $4096$, target $10^6$, and standard error $2\times10^{-5}$. The exponent interval is $[0.15,1.2]$. We use 11, 21, 41, 81, and 161 equally spaced grid points.
 
@@ -257,22 +354,16 @@ Bootstrap intervals use 20 refits and nominal coverage $0.90$; Laplace intervals
 We use the NSL-PFN data at repository revision
 \texttt{10a5a609}; the runner verifies SHA-256 checksums before analysis. The benchmark comprises five NMT and four image-classification curves, each evaluated at pilot fractions $0.50$, $0.70$, and $0.85$. No independent standard errors are available. We therefore solve an LP for the minimum uniform in-range radius and report held-out sensitivity to radius multipliers $1$--$4$. This experiment is descriptive and is not used to validate Theorem~\ref{thm:continuous-certificate}.
 
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/public_coverage_width.pdf}
+\caption{Public rolling-origin coverage--width frontier. Each point inflates the minimum in-range structural residual by the displayed multiplier. The figure complements Table~\ref{tab:public}: higher coverage is purchased by an explicit widening of the admissible model-mismatch class, rather than by a more confident fit to the same prefix.}
+\label{fig:public-frontier-supp}
+\end{figure}
+
 \paragraph{Reproducibility.}
 The submission pipeline runs every stage in a fresh process through
 \texttt{experiments/run\_submission.py}. Machine-readable outputs include per-run predictions and aggregate tables. All experiments are CPU-only; CI uses Ubuntu and Python~3.11 with the package ranges in \texttt{pyproject.toml}. Random experiments use fixed numerical seeds, and public-curve seeds are derived from SHA-256 identifiers rather than process-dependent hashes. GitHub Actions executes the unit tests, exact-risk script, all submission stages, and the manuscript build.
 
-\begin{figure*}[t]
-\centering
-\begin{minipage}[t]{0.49\textwidth}
-\centering
-\includegraphics[width=\linewidth]{figures/synthetic_coverage_width.pdf}
-\textbf{(a) Synthetic known-noise benchmark}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.49\textwidth}
-\centering
-\includegraphics[width=\linewidth]{figures/public_coverage_width.pdf}
-\textbf{(b) Public structural-mismatch sensitivity}
-\end{minipage}
-\caption{Coverage--informativeness frontiers. Synthetic coverage is evaluated against the nominal known-noise experiment; the public panel is descriptive and varies the declared structural-mismatch radius.}
-\label{fig:supp-frontiers}
-\end{figure*}
+

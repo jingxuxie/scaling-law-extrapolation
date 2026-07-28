@@ -53,8 +53,7 @@ draft:
 	pdflatex -interaction=nonstopmode -halt-on-error supplement_draft.tex
 
 preflight: all
-	@pages=$$(pdfinfo main.pdf | awk '/Pages/{print $$2}'); \
-	  test "$$pages" -le 7 || { echo "main.pdf has $$pages pages"; exit 1; }
+	@python preflight_pages.py main.pdf
 	@for file in main.pdf supplement.pdf checklist.pdf; do \
 	  if pdffonts "$$file" | grep -q 'Type 3'; then \
 	    echo "Type-3 font detected in $$file"; exit 1; \

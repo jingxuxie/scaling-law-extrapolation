@@ -8,7 +8,7 @@ All experiments are CPU-only and deterministic.
 PYTHONPATH=src python experiments/run_all.py
 ```
 
-This produces the matched floor--exponent pair, hidden crossover, compute-to-target comparison, and finite-dictionary coverage demonstration.
+This produces the matched floor--exponent pair, hidden crossover, compute-to-target comparison, three fixed-budget pilot-placement designs, and finite-dictionary coverage demonstration.
 
 ## Submission benchmark
 

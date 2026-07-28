@@ -77,6 +77,29 @@ $W\max_\ell\varepsilon_\ell(M)=O(W\Delta_{\max}^2)$.
 
 An empty set rejects the declared class at the chosen tolerance. An unbounded upper LP is an honest abstention. For a loss target $\tau$, success is certified when $\widetilde U_\delta(M_\star)\le\tau$, failure when $\widetilde L_\delta(M_\star)>\tau$, and otherwise remains unidentified. Bounded structural mismatch is included by expanding each pilot band by a declared radius $\rho_i$.
 
+The same risk envelope certifies a resource requirement rather than only a loss at one chosen scale.
+
+\begin{corollary}[Compute-to-target certificate]
+\label{cor:compute-certificate}
+On the simultaneous event in Theorem~\ref{thm:continuous-certificate}, define
+\begin{align}
+ \underline C_\delta(\tau)&:=\inf\{M:\widetilde L_\delta(M)\le\tau\},\\
+ \overline C_\delta(\tau)&:=\inf\{M:\widetilde U_\delta(M)\le\tau\}.
+ \label{eq:compute-certificate}
+\end{align}
+Then, for every threshold $\tau$ simultaneously,
+\begin{equation}
+ \underline C_\delta(\tau)
+ \le C_{\Risk}(\tau)
+ \le \overline C_\delta(\tau).
+ \label{eq:compute-coverage}
+\end{equation}
+Either endpoint may be infinite. Thus an unbounded upper resource requirement records that the pilot data cannot guarantee the target loss under the declared class.
+\end{corollary}
+
+\paragraph{Practical workflow.}
+A certificate is auditable only when its structural choices are visible. We recommend: (i) declare the exponent interval, positivity assumption, and mismatch radius before inspecting the target-scale result; (ii) form simultaneous pilot bands from repeated runs or a justified error model; (iii) solve both target LPs, or invert their envelopes using Corollary~\ref{cor:compute-certificate}; and (iv) report empty sets as model rejection and unbounded sets as abstention. Comparing nested exponent intervals and mismatch radii produces a coverage--informativeness frontier rather than one opaque confidence number.
+
 \section{Bridge to Trained Finite-Sample Regression}
 
 The spectral curve in Eq.~\eqref{eq:spectral-tail} is a population truncation risk. It also determines the risk of a trained estimator exactly.

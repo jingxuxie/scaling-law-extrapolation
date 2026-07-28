@@ -2,7 +2,7 @@
 
 This note records the exact assumptions behind each contribution and the checks used before marking the manuscript ready for review.
 
-## 1. Exact spectral realizability
+## 1. Exact spectral realizability and asymptotic exponent
 
 For uncorrelated coordinates with predictive energies `q_j=lambda_j theta_j^2`, the population-optimal truncation risk is
 
@@ -15,7 +15,13 @@ Two constructions are used:
 
 For a finite positive measure over exponents, Tonelli's theorem gives the continuous positive mixture. All energies are nonnegative and summable for positive exponents. An explicit regression model uses independent standard-normal coordinates and `theta_j=sqrt(q_j)`.
 
-## 2. Hidden-crossover lower bound
+If `alpha_0=inf supp(mu)`, positivity implies that every neighborhood of `alpha_0` contributes nonzero mass and that no exponent below `alpha_0` contributes. Integral upper and lower bounds on the Hurwitz-zeta tail then sandwich the excess risk between powers with exponents arbitrarily close to `alpha_0`, proving
+
+`lim[-log(R(M)-E)/log M]=alpha_0`.
+
+No atom at `alpha_0` is required. This result would generally fail under signed cancellation, which is why positivity is a substantive structural assumption.
+
+## 2. Hidden-crossover lower bound and resource amplification
 
 The alternatives are
 
@@ -28,7 +34,13 @@ Choosing `B=eta/phi_alpha(M_min)` makes the pilot gap at most `eta` at every des
 
 At `eta=sigma/(2 sqrt(m))`, Pinsker gives total variation at most `1/4`; the absolute-loss two-point reduction gives the constant `3/16`. Integral bounds on the zeta tail prove both future relative-risk divergence and unbounded compute-to-target ratio as the target excess risk approaches zero.
 
-## 3. Matched floor--exponent pair
+The strengthened resource corollary applies the same testing reduction to `log C_R(tau)`. For any estimator, its worst-case expected absolute log-resource error is at least `3/16` times the separation of the two true log resource requirements. The separation grows as
+
+`(1/alpha-1/beta) log(1/tau)+O(1)`.
+
+Thus a loss discrepancy that is below pilot noise can produce an unbounded multiplicative resource error.
+
+## 3. Matched floor--exponent pair and design-aware span
 
 The pair
 
@@ -50,6 +62,16 @@ Selecting the exponent gap at the KL boundary yields the local lower bound propo
 
 under the stated local exponent-range conditions. This is a lower bound, not a universal error formula for fitted laws.
 
+For arbitrary pilot locations `t_i`, define
+
+`T_eff=(m^{-1} sum_i t_i^4)^(1/4)`.
+
+The quadratic gap bound gives `KL <= const * m * delta^2 * T_eff^4/sigma^2`. Repeating the two-point construction at this design-specific KL boundary produces a target-risk lower bound proportional to
+
+`(sigma/sqrt(m)) (t_star/T_eff)^2`.
+
+The resulting necessary safe-horizon inequality is local and one-sided: it shows that small `T_eff` prevents a uniformly accurate extrapolation over the matched family. It is not claimed to be a global optimal-design theorem.
+
 ## 4. Finite-dictionary and continuous SCALE-CERT
 
 For a finite dictionary, simultaneous Gaussian pilot bands contain the true coefficient vector with probability at least `1-delta`; lower and upper target values are the extrema of a linear functional over the surviving nonnegative coefficient set.
@@ -68,7 +90,11 @@ Barycentric endpoint masses map every positive exponent measure into a finite no
 
 The outer pilot set therefore contains the mapped true measure on the simultaneous-band event, and the two target LPs cover every off-grid mixture on the declared exponent interval. For true total spectral mass at most `W`, the true secant representation error is at most `W max_cell epsilon_cell(M)=O(W Delta_max^2)`.
 
-The guarantee is conditional on positivity, exponent support, pilot-band validity, and any declared structural-mismatch radius. Empty sets are model rejection; unbounded upper objectives are abstention.
+The target-risk envelope can be inverted. On the same simultaneous event,
+
+`inf{M:L(M)<=tau} <= C_R(tau) <= inf{M:U(M)<=tau}`
+
+for every threshold `tau` simultaneously. Either endpoint may be infinite. The guarantee is conditional on positivity, exponent support, pilot-band validity, and any declared structural-mismatch radius. Empty sets are model rejection; unbounded upper objectives are abstention.
 
 ## 5. Exact finite-sample OLS bridge
 
@@ -84,6 +110,7 @@ The implementation is checked both against the theoretical mean and against expl
 
 ## 6. Empirical claim boundaries
 
+- The pilot-placement experiment fixes the curve pair, noise, run count, and allowable log-scale range, varying only the design. It illustrates the `T_eff` mechanism for that constructed pair; it is not presented as universal design optimality.
 - Synthetic coverage uses known Gaussian standard errors and is a direct finite-sample check of the stated class-conditional guarantee.
 - Public learning curves do not provide independent checkpoint standard errors. Their results are labelled descriptive and report a structural-mismatch sensitivity frontier; they are not used to claim theorem-level coverage.
 - The public files are pinned to NSL-PFN commit `10a5a60911a2a22ef453d8b4ddf1408b6a6075d9` and checksum verified.
@@ -91,6 +118,6 @@ The implementation is checked both against the theoretical mean and against expl
 
 ## Automated and document checks
 
-`pytest -q` checks 16 identities or implementation properties, including direct zeta sums, both lower-bound constructions, secant curvature, off-grid coverage, quadratic refinement, OLS mean/debiasing, exact OLS sampling, direct OLS simulation, baseline recovery, and minimum mismatch radius.
+`pytest -q` checks 18 identities or implementation properties, including direct zeta sums, both lower-bound constructions, the slowest-supported-exponent limit, the ordering of fixed-budget pilot designs, secant curvature, off-grid coverage, quadratic refinement, OLS mean/debiasing, exact OLS sampling, direct OLS simulation, baseline recovery, and minimum mismatch radius.
 
-The submission workflow runs all experiments in isolated jobs, compiles the manuscript, supplement, and checklist, and checks page count and embedded font types. The local preflight additionally renders every PDF page for visual inspection.
+The submission workflow runs all experiments in isolated jobs, compiles the manuscript, supplement, and checklist, and checks embedded font types and the rendered content/reference boundary. The main paper uses seven technical pages followed by two reference-only pages. The local preflight additionally renders every PDF page for visual inspection.

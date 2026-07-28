@@ -197,3 +197,40 @@ def test_minimum_uniform_radius_is_zero_for_supported_curve() -> None:
     y = mixture_risk(x, 0.2, [0.35, 0.8], [0.04, 0.2], basis="power")
     radius = minimum_uniform_band_radius(x, y, grid, basis="power")
     assert radius <= 1e-8
+
+
+def test_slowest_supported_component_controls_large_scale_slope() -> None:
+    sizes = np.asarray([1e8, 1e12])
+    excess = mixture_risk(
+        sizes,
+        floor=0.0,
+        exponents=[0.25, 0.90],
+        weights=[1e-3, 0.20],
+    )
+    fitted_slope = -np.log(excess[1] / excess[0]) / np.log(sizes[1] / sizes[0])
+    assert abs(fitted_slope - 0.25) < 1e-3
+
+
+def test_fixed_budget_pilot_designs_follow_effective_span_order() -> None:
+    from scipy.stats import norm
+
+    pair = MatchedPair(floor=0.20, signal=0.08, alpha=0.35, beta=0.55)
+    sigma = 0.005
+    designs = {
+        "centered": np.linspace(-0.1, 0.1, 9),
+        "uniform": np.linspace(-0.5, 0.5, 9),
+        "endpoint": np.asarray([-0.5] * 4 + [0.0] + [0.5] * 4),
+    }
+    effective_spans = []
+    kls = []
+    bayes_errors = []
+    for design in designs.values():
+        gap = pair.gap(design)
+        kl = float(np.sum(gap**2) / (2.0 * sigma**2))
+        effective_spans.append(float(np.mean(design**4) ** 0.25))
+        kls.append(kl)
+        bayes_errors.append(float(norm.cdf(-np.sqrt(2.0 * kl) / 2.0)))
+
+    assert effective_spans[0] < effective_spans[1] < effective_spans[2]
+    assert kls[0] < kls[1] < kls[2]
+    assert bayes_errors[0] > bayes_errors[1] > bayes_errors[2]

@@ -36,6 +36,17 @@ More generally, every finite positive measure $\mu$ on a compact exponent interv
 by setting $q_j=\int j^{-1-\alpha}\,d\mu(\alpha)$.
 \end{proposition}
 
+\begin{proposition}[The slowest spectral population controls the exponent]
+\label{prop:slowest-support}
+Let $\mu$ be a finite nonzero positive measure supported on a compact interval in $(0,\infty)$, and let
+$\alpha_0=\inf\operatorname{supp}(\mu)$. Then the exponent functional in Eq.~\eqref{eq:exponent-functional} exists for Eq.~\eqref{eq:continuous-mixture} and
+\begin{equation}
+ a(\Risk_{E,\mu})=\alpha_0.
+ \label{eq:slowest-support}
+\end{equation}
+This remains true when $\mu$ has no atom at $\alpha_0$; slowly varying factors may change, but the log--log exponent does not.
+\end{proposition}
+
 \begin{corollary}[Exact powers]
 \label{cor:exact-power}
 For $A,\alpha>0$, the predictive energies
@@ -47,4 +58,4 @@ $q_j=A\{j^{-\alpha}-(j+1)^{-\alpha}\}$ yield
 for every integer $M\ge0$.
 \end{corollary}
 
-A single power therefore corresponds to one spectral population, whereas a crossover corresponds to multiple populations. Positivity is structural: mixture weights are predictive energies, not an arbitrary regularizer.
+A single power therefore represents one spectral population, while a crossover represents several. Proposition~\ref{prop:slowest-support} explains why an arbitrarily weak slow component is qualitatively important: it is not merely another finite-scale correction, but the population that determines the eventual exponent. Positivity is structural because mixture weights are predictive energies, not an arbitrary regularizer.

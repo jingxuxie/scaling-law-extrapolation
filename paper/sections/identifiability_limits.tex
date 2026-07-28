@@ -50,6 +50,26 @@ $C_k(\tau)=\min\{M:\Risk_k(M)-E\le\tau\}$. Integral bounds on $\phi_\alpha$ impl
 \end{align}
 Their ratio is unbounded as $\tau\downarrow0$. Hence a below-noise component can have little effect on the next measured loss while changing the resource budget required for a demanding target by orders of magnitude.
 
+\begin{corollary}[Unbounded compute-to-target estimation risk]
+\label{cor:compute-minimax}
+Use the statistically indistinguishable pair in Theorem~\ref{thm:hidden} with
+$\eta=\sigma/(2\sqrt m)$. For any estimator $\widehat\ell_\tau$ of
+$\ell_k(\tau)=\log C_k(\tau)$,
+\begin{equation}
+ \max_{k\in\{0,1\}}\E_k
+ |\widehat\ell_\tau-\ell_k(\tau)|
+ \ge \frac{3}{16}\left|\log\frac{C_1(\tau)}{C_0(\tau)}\right|.
+ \label{eq:compute-minimax}
+\end{equation}
+For all sufficiently small $\tau$, Eqs.~\eqref{eq:compute-target} imply that the right-hand side grows at least as
+\begin{equation}
+ \frac{3}{16}\left(\frac1\alpha-\frac1\beta\right)
+ \log\frac1\tau+O(1).
+ \label{eq:compute-log-rate}
+\end{equation}
+Thus the minimax error in predicting the logarithm of the required resource is unbounded even though the pilot KL divergence remains at most $1/8$.
+\end{corollary}
+
 \subsection{Floor--Exponent Confounding Within One Power}
 
 The previous construction changes the number of components. We next show that ambiguity already occurs within Eq.~\eqref{eq:standard-law}. Fix $E\ge0$, $S>0$, and $0<\alpha<\beta$. On centered log scale define
@@ -106,6 +126,40 @@ $\bar\alpha T,\bar\alpha(T+h)\le1$. There then exist two curves in the standard 
  \label{eq:horizon-ratio}
 \end{equation}
 Replication helps only as $m^{-1/2}$, while insufficient log-span enters quadratically. The result is a lower bound, not a claim that every fitted scaling law attains this error.
+
+The worst-case span $T$ hides how the pilot budget is placed. Define the design's effective fourth-moment span
+\begin{equation}
+ T_{\mathrm{eff}}:=\left(\frac1m\sum_{i=1}^m t_i^4\right)^{1/4}\le T.
+ \label{eq:effective-span}
+\end{equation}
+
+\begin{corollary}[Design-aware log-span barrier]
+\label{cor:design-span}
+Suppose $T_{\mathrm{eff}}>0$ and
+\begin{equation}
+ \delta\le
+ \frac{\sigma}{\alpha S e^{\bar\alpha T}T_{\mathrm{eff}}^2\sqrt m}.
+ \label{eq:design-delta}
+\end{equation}
+Then Eq.~\eqref{eq:target-lower} holds. In particular, if the right-hand side of Eq.~\eqref{eq:design-delta} is an admissible exponent gap and
+$\bar\alpha T,\bar\alpha t_\star\le1$, there are two ordinary one-power laws satisfying
+\begin{equation}
+ \inf_{\widehat f_\star}\max_k
+ \E_k|\widehat f_\star-f_k(t_\star)|
+ \ge \frac{3e^{-2}}{32}\frac{\sigma}{\sqrt m}
+ \left(\frac{t_\star}{T_{\mathrm{eff}}}\right)^2.
+ \label{eq:design-lower}
+\end{equation}
+If $T_{\mathrm{eff}}=0$, all pilots are at the matching point and the two mean vectors are identical for every admissible exponent gap.
+\end{corollary}
+
+For a fixed allowable interval $[-T,T]$, $T_{\mathrm{eff}}$ is largest when runs are placed near the endpoints. Thus endpoint diversity is more informative against this local confounding pair than concentrating the same number of runs near the center. Conversely, requiring the lower bound in Eq.~\eqref{eq:design-lower} to be at most a tolerance $\epsilon$ gives the necessary local condition
+\begin{equation}
+ h\le T_{\mathrm{eff}}
+ \sqrt{\frac{32e^2\epsilon\sqrt m}{3\sigma}}-T.
+ \label{eq:safe-horizon}
+\end{equation}
+The certifiable horizon grows only as $m^{1/4}$ under replication, whereas it grows linearly with effective log-span. This is a design implication for the exhibited ambiguity, not a global optimal-design theorem.
 
 \paragraph{Proof idea.}
 Let $H(z)=1-(1+z)e^{-z}$. The gap in Eq.~\eqref{eq:matched-pair} admits the exact representation

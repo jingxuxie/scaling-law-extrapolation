@@ -1,13 +1,19 @@
 \section{Related Work}
 
-\paragraph{Scaling-law forms and reliability.}
-Empirical power laws have been reported across language, vision, and generative modeling \citep{hestness2017deep,rosenfeld2020constructive,kaplan2020scaling,henighan2020scaling,hoffmann2022empirical}. Smoothly broken laws model observed regime changes \citep{caballero2022broken}, while downstream studies show that simple trends are not universal \citep{ruan2024observational,lourie2025unreliable}. We do not propose another point-fit form; we characterize the future values that cannot be ruled out.
+\paragraph{Empirical laws and successful extrapolation.}
+Power-law relations have been reported across language, vision, and generative modeling \citep{hestness2017deep,rosenfeld2020constructive,kaplan2020scaling,henighan2020scaling,hoffmann2022empirical}. Recent studies show that carefully designed model ladders can transfer beyond compute-optimal training and can sometimes predict aggregate downstream performance \citep{gadre2025reliable,ruan2024observational}. Richer forms incorporate learning-rate schedules, architecture, and higher-order parameter--data interactions \citep{tissue2024annealing,li2025farseer,mcleish2025gemstones}. These successes motivate scaling laws as decision tools. Our question is complementary: before choosing a preferred parametric form, what future losses are already determined by the pilot observations and declared assumptions?
 
-\paragraph{Spectral theory.}
-Power-law eigenspectra and source conditions yield parameter--data--compute laws in kernel, random-feature, and linear models \citep{lin2024scaling,bordelon2024dynamical,lin2025improved}. Our population truncation model isolates the spectral tail exactly, permitting nonasymptotic testing constructions and a finite-sample OLS bridge.
+\paragraph{Regime changes and empirical fragility.}
+Smoothly broken laws represent transitions visible in the measured range \citep{caballero2022broken}, and double-descent phenomena show that monotone single-power behavior is not universal \citep{nakkiran2020deep}. Reanalyses of compute-optimal laws have also exposed sensitivity to curve extraction, FLOP accounting, warmup, and scale-dependent hyperparameter tuning \citep{besiroglu2024chinchilla,porian2024resolving}. At the task level, simple downstream trends can fail even when upstream loss is regular \citep{lourie2025unreliable}. These works diagnose particular failures or improve the fitted family. We instead construct learning problems that are statistically indistinguishable on an arbitrary bounded pilot range, so no in-range model-selection criterion can reliably distinguish them without additional structure.
 
-\paragraph{Uncertainty and identifiability.}
-Learning-curve extrapolation supports early stopping and hyperparameter optimization \citep{domhan2015speeding,klein2017fast}. Bayesian and prior-data fitted methods produce posterior predictions conditional on synthetic-function priors \citep{adriaensen2023efficient,lee2025bayesian}. Concurrent conformalized scaling laws calibrate residual-based prediction intervals \citep{romano2019conformalized,bukkapatnam2026conformalized}. \ScaleCert\ instead gives conditional frequentist coverage over an explicit spectral class and may return an unbounded interval when the pilot data do not identify the target. Kricheli \etal\ show local ill-conditioning when two-resource laws are fit along nearly collinear tokens-per-parameter rays \citep{kricheli2026coverage}. Our obstruction is one-dimensional, allows hidden future regimes, applies to arbitrary pilot placement inside a bounded interval, and is paired with target-specific partial identification. We use standard two-point testing arguments \citep{tsybakov2009introduction}.
+\paragraph{Spectral scaling theory.}
+Power-law eigenspectra and source conditions yield parameter--data--compute laws in kernel, random-feature, and linear models \citep{lin2024scaling,bordelon2024dynamical,lin2025improved}. This literature explains why simple exponents can arise from many weak predictive directions and how optimization or data reuse changes the learnable spectral cutoff. We use the same spectral language differently: exact tail sums realize observationally equivalent scaling curves, reveal which latent population controls the asymptotic exponent, and connect directly to finite-sample OLS.
+
+\paragraph{Predictive uncertainty.}
+Learning-curve extrapolation has long supported early stopping and hyperparameter optimization \citep{domhan2015speeding,klein2017fast}. Bayesian and prior-data fitted methods return posterior predictions conditional on a curve family or synthetic-function prior \citep{adriaensen2023efficient,lee2025bayesian}. Conformalized scaling laws calibrate residual-based intervals \citep{romano2019conformalized,bukkapatnam2026conformalized}; under distribution shift, conformal validity itself requires explicit assumptions or weighting information \citep{tibshirani2019covariate}. \ScaleCert\ addresses a different uncertainty source. It asks for the full target range compatible with an explicit positive spectral class and simultaneous pilot bands. Consequently, it can return a wide or unbounded interval even when observational noise is small, because structural ambiguity rather than sampling variation is dominant.
+
+\paragraph{Identification and experimental design.}
+Set-valued conclusions are standard when assumptions only partially identify a target \citep{manski2003partial}. Kricheli \etal\ show local ill-conditioning when two-resource laws are fit along nearly collinear tokens-per-parameter rays \citep{kricheli2026coverage}. Our obstruction is one-dimensional, permits hidden future regimes, applies to arbitrary pilot placement in a bounded interval, and is paired with computable target and resource certificates. The lower bounds use classical two-point testing \citep{tsybakov2009introduction}; our design-aware refinement makes the relevant fourth moment of the pilot log-scales explicit.
 
 \section{Problem Setup}
 
@@ -16,7 +22,23 @@ Let $M_1<\cdots<M_m\le M_{\max}$ be pilot model sizes and $M_\star>M_{\max}$ a t
   Y_i=\Risk(M_i)+\xi_i,\qquad \xi_i\sim\Normal(0,s_i^2),
   \label{eq:observations}
 \end{equation}
-independently. Standard errors may come from repeated training seeds or evaluation uncertainty. We distinguish the asymptotic exponent, the future risk $\Risk(M_\star)$, and the decision $\Risk(M_\star)\le\tau$; these need not have the same identifiability.
+independently. Standard errors may come from repeated training seeds or evaluation uncertainty. The central distinction is between fitting the observed points and identifying a functional of the unobserved tail. Three practically different targets are summarized below.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Object & Target & Failure mode \\
+\midrule
+Exponent & $a(\Risk)$ & Hidden slow mass \\
+Target risk & $\Risk(M_\star)$ & Floor--slope confounding \\
+Resource & $C_{\Risk}(\tau)$ & Inversion amplifies error \\
+\bottomrule
+\end{tabular}
+\caption{Exponent, prediction, and decision identifiability are distinct. The target column refers to Eqs.~\eqref{eq:exponent-functional} and~\eqref{eq:compute-functional}.}
+\label{tab:targets}
+\end{table}
 
 For $E_{\Risk}=\lim_{M\to\infty}\Risk(M)$, define the excess-risk exponent, when it exists, by
 \begin{equation}
@@ -24,4 +46,11 @@ For $E_{\Risk}=\lim_{M\to\infty}\Risk(M)$, define the excess-risk exponent, when
  \frac{\log(\Risk(M)-E_{\Risk})}{\log M}.
  \label{eq:exponent-functional}
 \end{equation}
-For the one-power lower bound, write $t=\log(M/M_0)$. Pilots lie in $[-T,T]$ and the target is $t_\star=T+h$; $h/T$ is the extrapolation horizon relative to observed log-span.
+For a loss threshold $\tau>E_{\Risk}$, define the compute-to-target functional
+\begin{equation}
+ C_{\Risk}(\tau):=\inf\{M\ge M_{\max}:\Risk(M)\le\tau\},
+ \label{eq:compute-functional}
+\end{equation}
+with the convention $\inf\varnothing=\infty$. For the one-power lower bound, write $t=\log(M/M_0)$. Pilots lie in $[-T,T]$ and the target is $t_\star=T+h$; $h/T$ is the extrapolation horizon relative to the observed log-span.
+
+A visually excellent pilot fit can therefore coexist with three different failures: the fitted exponent may not be the asymptotic exponent, the next target loss may remain weakly identified, and a small loss discrepancy may become a large resource discrepancy after solving Eq.~\eqref{eq:compute-functional}. The following exact regression model lets us separate these effects without approximation error from training a large neural network.

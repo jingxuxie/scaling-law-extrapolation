@@ -25,6 +25,7 @@ matplotlib.rcParams["ps.fonttype"] = 42
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import least_squares
+from scipy.stats import norm
 
 from scaling_extrapolation import (
     MatchedPair,
@@ -135,6 +136,56 @@ def matched_floor_exponent_demo() -> None:
                 "gaussian_kl": kl_upper,
             }
         ],
+    )
+
+
+def pilot_design_demo() -> None:
+    """Compare pilot placements for the matched floor--exponent pair."""
+    pair = MatchedPair(floor=0.20, signal=0.08, alpha=0.35, beta=0.55)
+    standard_error = 0.005
+    half_span = 0.5
+    designs = {
+        "centered": np.linspace(-0.1, 0.1, 9),
+        "uniform_log_scale": np.linspace(-half_span, half_span, 9),
+        "endpoint_heavy": np.concatenate(
+            (np.full(4, -half_span), np.asarray([0.0]), np.full(4, half_span))
+        ),
+    }
+
+    rows: list[dict[str, object]] = []
+    for name, log_scales in designs.items():
+        gap = pair.gap(log_scales)
+        kl = float(np.sum(gap**2) / (2.0 * standard_error**2))
+        effective_span = float(np.mean(log_scales**4) ** 0.25)
+        bayes_error = float(norm.cdf(-np.sqrt(2.0 * kl) / 2.0))
+        rows.append(
+            {
+                "design": name,
+                "pilot_points": log_scales.size,
+                "half_log_span": half_span,
+                "effective_span": effective_span,
+                "effective_span_ratio": effective_span / half_span,
+                "gaussian_kl": kl,
+                "equal_prior_bayes_error": bayes_error,
+                "max_pilot_gap": float(np.max(gap)),
+                "standard_error": standard_error,
+            }
+        )
+
+    write_rows(
+        RESULT_DIR / "pilot_design.csv",
+        [
+            "design",
+            "pilot_points",
+            "half_log_span",
+            "effective_span",
+            "effective_span_ratio",
+            "gaussian_kl",
+            "equal_prior_bayes_error",
+            "max_pilot_gap",
+            "standard_error",
+        ],
+        rows,
     )
 
 
@@ -389,6 +440,7 @@ def certificate_coverage_demo(seed: int = 7, repetitions: int = 250) -> None:
 
 def main() -> None:
     matched_floor_exponent_demo()
+    pilot_design_demo()
     hidden_crossover_demo()
     certificate_coverage_demo()
     print(f"Wrote figures to {FIGURE_DIR}")

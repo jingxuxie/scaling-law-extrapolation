@@ -1,14 +1,23 @@
 \section{Implications and Limitations}
 
+\paragraph{A scaling claim should name its target.}
+Table~\ref{tab:targets} separates exponent, target-risk, and resource identification. A local slope may predict the next measured loss while failing to identify the asymptotic exponent, and a small loss error can imply a large error in the model size needed for a stringent threshold. Reporting the decision functional and extrapolation horizon therefore makes a claim easier to audit.
+
 \paragraph{Scale diversity versus replication.}
-Theorem~\ref{thm:matched} applies to arbitrary placement of $m$ points inside $[-T,T]$. Replication shrinks noise as $m^{-1/2}$ but cannot reveal curvature beyond the observed span. Pilot budgets should therefore include genuinely separated log-scales when feasible.
+Corollary~\ref{cor:design-span} sharpens pilot placement through $T_{\mathrm{eff}}$. Central repeats estimate a mean, while separated log-scales expose curvature that distinguishes the floor from the exponent. Replication remains useful for stochastic uncertainty, but its contribution to the local safe horizon is only $m^{1/4}$. A practical ladder should reserve budget for separated scales near the feasible boundaries and use repeats at fewer informative locations.
 
 \paragraph{Coverage is conditional on visible assumptions.}
-No bounded pilot interval can exclude every slower component. \ScaleCert\ requires an exponent range, positivity, observation bands, and any structural-mismatch radius to be declared. A broad class may yield a wide or unbounded interval; this is an abstention, not an implementation failure. The public experiment demonstrates that in-range fit alone cannot calibrate mismatch beyond the range.
+No bounded pilot interval can exclude every slower component. \ScaleCert\ requires an exponent range, positivity, observation bands, and any mismatch radius to be declared. A broad class may yield a wide or infinite interval; this is an abstention, not a failure. Conversely, a narrow interval is meaningful only relative to the stated class. The public experiment shows that the minimum in-range residual cannot automatically become a future mismatch guarantee.
+
+\paragraph{Relation to other uncertainty methods.}
+Bayesian intervals depend on a curve prior, while residual conformalization needs a calibration regime connected to the target. These methods can tighten stochastic bands; partial identification keeps uncertainty about unobserved spectral structure explicit.
 
 \paragraph{Scope.}
-The theory covers monotone positive spectral mixtures and independent Gaussian pilot errors. Nonmonotone phase transitions, adaptively selected pilot runs, correlated errors, and learned structural classes remain open. The OLS proposition exactly connects population and trained risks under Gaussian design, but analogous debiasing for ridge, early-stopped SGD, and neural networks requires additional analysis. Our public evaluation is deliberately descriptive because the released curves do not provide independent standard errors.
+The theory covers monotone positive mixtures and independent Gaussian pilot errors. Nonmonotone transitions, signed cancellations, adaptive pilot selection, and correlated errors require extensions. The OLS bridge is exact for whitened Gaussian design; ridge, early-stopped SGD, and neural networks need further analysis. The public evaluation is descriptive because independent checkpoint standard errors are unavailable. Finally, the lower bounds are worst-case results, not claims that every forecast fails.
+
+\paragraph{Recommended reporting.}
+A defensible extrapolation report should state the observed log-span, target horizon, pilot locations or $T_{\mathrm{eff}}$, pilot uncertainty, structural class, and target interval. It should also show sensitivity to a wider exponent range or mismatch radius. This reveals whether confidence comes from data coverage or assumptions.
 
 \section{Conclusion}
 
-A high in-range $R^2$ does not certify a scaling-law extrapolation. Exact linear-regression constructions show that below-noise spectral mass can change the asymptotic exponent and compute-to-target requirement, while floor--exponent confounding creates a quantitative log-span barrier. \ScaleCert\ turns explicit assumptions into a target interval, with a rigorous continuous-exponent correction and an exact bridge to finite-sample OLS. The practical lesson is not that every extrapolation must be wide, but that confidence should contract only after pilot data have ruled out the alternatives that matter for the decision.
+A high in-range $R^2$ is not an extrapolation certificate. Below-noise spectral mass can determine the eventual exponent and resource requirement, while floor--exponent confounding creates a design-dependent span barrier. \ScaleCert\ turns explicit assumptions into target-risk and compute intervals. Confidence should contract only when pilot design and assumptions rule out decision-relevant alternatives.
